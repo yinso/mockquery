@@ -61,29 +61,28 @@ want to prepopulate data that's supposed to be pulled from the client-side.
 Since this is developed to support [covalent](http://github.com/yinso/covalent) it means that currently the selector
 supported are based on the need of `covalent`. This can be improved in the future if there are needs.
 
+You can pass `element` or `document` objects into `$` - the same way as in jQuery.
 
     $(<element>)
     $(<document>)
 
-You can pass `element` or `document` objects into `$` - the same way as in jQuery.
+Likewise - you can also use element tags.
 
     $('body')
     $('div')
 
-Likewise - you can also use element tags.
+Class and ID also work.
 
     $('.class')
     $('#id')
 
-Class and ID also work.
+Attributes also work.
 
     $('[href]')
 
-Attributes also work.
+You can also create more elements via passing in a html fragment.
 
     $('<div>a html fragment</div>')
-
-You can also create more elements via passing in a html fragment.
 
 ## Supported jQuery Methods
 
