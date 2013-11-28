@@ -300,29 +300,32 @@ postJSON = (uri, data, cb) ->
 load = (document) ->
   if typeof(document) == 'string'
     document = new Document document
-  jQuery = (selector, context = document) ->
+  query = (selector, context = document) ->
     if selector instanceof Element
       new MockQuery [selector], document
     else if selector instanceof Document
       new MockQuery [selector], document
-    else if selector.match(/<[^>]+>/)
+    else if typeof(selector) == 'string' and selector.match(/<[^>]+>/)
       elt = document.createElement Parser.parse('<div>'+ selector + '</div>')
       new MockQuery elt.children(), document
+    else if typeof(selector) == 'string'
+      sel = new Selector selector
+      new MockQuery sel.run(document, false), document
     else
-      selector = new Selector selector
-      new MockQuery selector.run(document, false), document
-  jQuery.getJSON = getJSON
-  jQuery
+      throw new Error("unknown_selector_type: #{selector}")
+  query.document = document
+  query.getJSON = getJSON
+  query
 
-readFile = (path, cb) ->
-  fs.readFile path, 'utf8', (err, data) ->
+readFile = (filePath, cb) ->
+  fs.readFile filePath, 'utf8', (err, data) ->
     if err
       cb err
     else
       cb null, load(data)
 
-readFileSync = (path) ->
-  load fs.readFileSync path, 'utf8'
+readFileSync = (filePath) ->
+  load fs.readFileSync filePath, 'utf8'
 
 module.exports =
   load: load

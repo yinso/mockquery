@@ -15,8 +15,6 @@ main: './lib/mockquery.js'
 dependencies:
   'coffee-script': '=1.4.0'
 devDependencies:
-  chai: '= 1.4.0'
-  testlet: '~ 0.1.4'
-  mocha: '= 1.7.3'
+  testlet: '~ 0.1.5'
   'coffee-bean': '=0.1.0'
   pegjs: '=0.7.0'

@@ -5,7 +5,11 @@ _ = require 'underscore'
 class Document
   constructor: (elt) ->
     @documentElement =
-      if elt instanceof Element
+      if typeof(elt) == 'string'
+        elt = @createElement Parser.parse(elt)
+        elt.setOwnerDocument @
+        elt
+      else if elt instanceof Element
         elt.setOwnerDocument @
       else
         elt = @createElement elt
