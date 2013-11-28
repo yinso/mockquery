@@ -1,6 +1,6 @@
 # MockQuery - A Simple NodeJS jQuery Substitute
 
-Mockquery is a simple jQuery substitute for NodeJS, meant to be used on the server-side.
+`Mockquery` is a simple jQuery substitute for NodeJS, meant to be used on the server-side.
 
 This is similar to [cheerio](https://github.com/MatthewMueller/cheerio), but is implemented specifically for
 [covalent's](http://github.com/yinso/covalent) use cases. That means it's currently a limited mock and doesn't cover
