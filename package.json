@@ -1,7 +1,7 @@
 {
   "author": "YC <yinso.chen@gmail.com>",
   "name": "mockquery",
-  "description": "A Simple NodeJS mockQuery Substitute",
+  "description": "A Simple NodeJS jQuery Substitute",
   "version": "0.1.0",
   "repository": {
     "type": "git",
