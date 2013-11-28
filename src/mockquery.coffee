@@ -12,31 +12,6 @@ qs = require 'querystring'
 fs = require 'fs'
 path = require 'path'
 
-# implements the jQuery interface needed by covalent to work on the server-side.
-# ***selectors
-# element -> passing in the element itself.
-# document -> passing in the document object itself as well.
-# '<html>...</html>' -> creating html elements...
-# '[attr]'
-# 'script[type=val]'
-# ***functions
-# .data(key)
-# .data(key, val) # not flattening it automatically!
-# .attr(key, val)
-# .attr(key)
-# .removeAttr
-# .bind event, callback
-# .bind keyup, key, callback
-# .css <object>
-# .addClass
-# .removeClass
-# .children()
-# .html(txt)
-# .appendTo
-# .append
-# .prepend
-# .after
-
 class MockQuery
   constructor: (elements, @context) ->
     for elt, i in elements

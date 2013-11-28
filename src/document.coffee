@@ -215,6 +215,19 @@ class Element extends EventEmitter
   bind: (args...) ->
   unbind: (args...) ->
   on: (args...) ->
+  val: (value) ->
+    if arguments.length == 0
+      if @tag == 'input' or @tag == 'textarea' or @tag == 'select'
+        if @attributes.hasOwnProperty('value')
+          @attributes['value']
+        else
+          undefined
+    else
+      if @tag == 'input' or @tag == 'textarea' or @tag == 'select'
+        @attributes.value = value
+      else
+        return
+
 
 Document.Element = Element
 
