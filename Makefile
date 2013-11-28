@@ -9,9 +9,6 @@ JSONDIR=.
 COFFEE_SOURCES= $(wildcard $(VPATH)/*.coffee)
 COFFEE_OBJECTS=$(patsubst $(VPATH)/%.coffee, $(BUILDDIR)/%.js, $(COFFEE_SOURCES))
 
-TEST_COFFEE_SOURCES= $(wildcard $(TESTDIR)/*.coffee)
-TEST_COFFEE_OBJECTS= $(patsubst $(TESTDIR)/%.coffee, $(TESTDIR)/%.js, $(TEST_COFFEE_SOURCES))
-
 BEAN_FILES=$(wildcard $(BEANDIR)/*.bean)
 JSON_FILES=$(patsubst $(BEANDIR)/%.bean, $(JSONDIR)/%.json, $(BEAN_FILES))
 
@@ -25,22 +22,16 @@ all: build
 build: node_modules objects 
 
 .PHONY: objects
-objects: $(JSON_FILES) src/covalent.js lib/covalent.js example/example.js example/package.json
-
-lib/covalent.js: $(COFFEE_SOURCES) src/covalent.js $(TEST_COFFEE_SOURCES)
-	./node_modules/.bin/amdee --source . --target lib/covalent.js
-
-example/example.js: example/main.coffee lib/covalent.js example/package.json
-	./node_modules/.bin/amdee --source example/main.coffee --target example/example.js
-
-example/package.json: example/package.bean
-	./node_modules/.bin/bean --source $<
+objects: $(COFFEE_OBJECTS) $(JSON_FILES) lib/parser.js
 
 $(JSONDIR)/%.json: $(BEANDIR)/%.bean
 	./node_modules/.bin/bean --source $<
 
-src/covalent.js: src/covalent.pegjs
-	./node_modules/.bin/pegjs src/covalent.pegjs src/covalent.js
+src/parser.js: src/parser.pegjs
+	./node_modules/.bin/pegjs src/parser.pegjs src/parser.js
+
+lib/parser.js: src/parser.js
+	cp src/parser.js lib/parser.js
 
 #	#./node_modules/.bin/mocha --ignore-leaks --compilers coffee:coffee-script --reporter spec  -g exec # proxy runtime parse exec compile # for running test cases that matches the name
 .PHONY: test

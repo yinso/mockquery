@@ -19,3 +19,11 @@ full jQuery's API (nor the selectors yet).
 The html fragment currently needs to be based on XHTML rules; i.e. the underlying parser for mockquery doesn't try to parse
 everyday html's. This is due to mockquery's goal is for server-side template generation. This can change in the future.
 
+## Supported Selectors
+
+> TODO - Fill in
+
+## Supported Methods
+
+> TODO - Fill in
+

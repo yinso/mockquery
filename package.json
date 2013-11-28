@@ -1,11 +1,11 @@
 {
   "author": "YC <yinso.chen@gmail.com>",
-  "name": "covalent",
-  "description": "A two-way data-binding template system",
-  "version": "0.2.0",
+  "name": "mockquery",
+  "description": "A Simple NodeJS mockQuery Substitute",
+  "version": "0.1.0",
   "repository": {
     "type": "git",
-    "url": "git@github.com:yinso/covalent.git"
+    "url": "git@github.com:yinso/mockquery.git"
   },
   "engines": {
     "node": "~ 0.8.4"
@@ -14,19 +14,15 @@
     "test": "make test",
     "prepublish": "make"
   },
-  "main": "./lib/covalent.js",
+  "main": "./lib/mockquery.js",
   "dependencies": {
     "coffee-script": "=1.4.0"
   },
   "devDependencies": {
-    "amdee": "~ 0.5.5",
     "chai": "= 1.4.0",
     "testlet": "~ 0.1.4",
     "mocha": "= 1.7.3",
     "coffee-bean": "=0.1.0",
     "pegjs": "=0.7.0"
-  },
-  "amdee": {
-    "main": "./src/runtime.coffee"
   }
 }

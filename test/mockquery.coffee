@@ -7,6 +7,7 @@ path = require 'path'
 
 document = null
 $ = null
+parsed = null
 runtime = null
 
 describe 'document test', () ->
@@ -46,7 +47,8 @@ describe 'document test', () ->
   it 'should use coquery', (done) ->
     try
       $ = mockQuery.load(document)
-      console.log $('script[type="text/template"]').html()
+      test.equal 3, $('script[type="text/template"]').length
+      test.equal
       done null
     catch e
       done e

@@ -218,7 +218,7 @@ class Selector
   @parse: (stmt) ->
     new Selector stmt
   constructor: (stmt) ->
-    {@select} = Parser.parse "#{stmt} { @text: '' }"
+    {@select} = Parser.parse stmt #"#{stmt} { @text: '' }"
     @matchExp = @compile @select
   negate: () ->
     origMatchExp = @matchExp
