@@ -288,8 +288,11 @@ load = (document) ->
       new MockQuery sel.run(document, false), document
     else
       throw new Error("unknown_selector_type: #{selector}")
+  query.fn = query.prototype
   query.document = document
-  query.getJSON = getJSON
+  query.fn.getJSON = getJSON
+  query.fn.destroy = () ->
+    query.document.destroy()
   query
 
 readFile = (filePath, cb) ->

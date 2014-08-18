@@ -16,6 +16,8 @@ class Document
         elt.setOwnerDocument @
         elt
     @_data = {}
+  destroy: () ->
+    @documentElement.destroy()
   data: (key, val) ->
     if arguments.length == 1
       res = @_data[key]
@@ -51,15 +53,23 @@ class Document
   html: (args...) ->
     @documentElement.html args...
 
+#
 # I've already have the selector parsed... actually the selector ought to be decently simple.
 # it might as well just be a function
-
+#
 class Element extends EventEmitter
   constructor: (tag, attributes, @_parent, @ownerDocument) ->
     @tag = tag
     @attributes = attributes
     @_data = {}
     @_children = []
+  destroy: () ->
+    delete @ownerDocument
+    delete @_parent
+    for child in @_children
+      if child instanceof Element
+        child.destroy()
+    delete @_children
   clone: () -> # when we clone do we worry about the current parent?
     elt = @ownerDocument.createElement {element: @tag, attributes: _.extend({}, @attributes), children: []}
     for child in @_children

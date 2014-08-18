@@ -11,6 +11,7 @@ parsed = null
 runtime = null
 
 describe 'document test', () ->
+
   it 'should parse html', (done) ->
     fs.readFile path.join(__dirname, '../example/test.html'), 'utf8', (err, data) ->
       if err
@@ -48,7 +49,7 @@ describe 'document test', () ->
     try
       $ = mockQuery.load(document)
       test.equal 3, $('script[type="text/template"]').length
-      test.equal
       done null
     catch e
       done e
+
