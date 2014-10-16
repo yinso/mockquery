@@ -1,0 +1,116 @@
+<?xml version="1.0" ?>
+<ItemLookupResponse 
+  xmlns="http://webservices.amazon.com/AWSECommerceService/2011-08-01">
+  <OperationRequest>
+    <RequestId>586e27bb-3852-4209-a4e6-c8291894e3ce</RequestId>
+    <Arguments>
+      <Argument Name="Operation" Value="ItemLookup"></Argument>
+      <Argument Name="Service" Value="AWSECommerceService"></Argument>
+      <Argument Name="AssociateTag" Value="bonzalabllc-20"></Argument>
+      <Argument Name="Version" Value="2011-08-01"></Argument>
+      <Argument Name="Signature" Value="gnXEnZsTCGvbuORhwCuE/G7SvOi5v2GgmLOUNODHy7U="></Argument>
+      <Argument Name="ItemId" Value="0553418351"></Argument>
+      <Argument Name="AWSAccessKeyId" Value="AKIAJGIEBIGGVDKYXRKQ"></Argument>
+      <Argument Name="Timestamp" Value="2014-10-15T00:31:19Z"></Argument>
+      <Argument Name="ResponseGroup" Value="ItemAttributes"></Argument>
+    </Arguments>
+    <RequestProcessingTime>0.0133220000000000</RequestProcessingTime>
+  </OperationRequest>
+  <Items>
+    <Request>
+      <IsValid>True</IsValid>
+      <ItemLookupRequest>
+        <IdType>ASIN</IdType>
+        <ItemId>0553418351</ItemId>
+        <ResponseGroup>ItemAttributes</ResponseGroup>
+        <VariationPage>All</VariationPage>
+      </ItemLookupRequest>
+    </Request>
+    <Item>
+      <ASIN>0553418351</ASIN>
+      <DetailPageURL>http://www.amazon.com/Gone-Market-Movie-Tie-In-Edition/dp/0553418351%3FSubscriptionId%3DAKIAJGIEBIGGVDKYXRKQ%26tag%3Dbonzalabllc-20%26linkCode%3Dxm2%26camp%3D2025%26creative%3D165953%26creativeASIN%3D0553418351</DetailPageURL>
+      <ItemLinks>
+        <ItemLink>
+          <Description>Technical Details</Description>
+          <URL>http://www.amazon.com/Gone-Market-Movie-Tie-In-Edition/dp/tech-data/0553418351%3FSubscriptionId%3DAKIAJGIEBIGGVDKYXRKQ%26tag%3Dbonzalabllc-20%26linkCode%3Dxm2%26camp%3D2025%26creative%3D386001%26creativeASIN%3D0553418351</URL>
+        </ItemLink>
+        <ItemLink>
+          <Description>Add To Baby Registry</Description>
+          <URL>http://www.amazon.com/gp/registry/baby/add-item.html%3Fasin.0%3D0553418351%26SubscriptionId%3DAKIAJGIEBIGGVDKYXRKQ%26tag%3Dbonzalabllc-20%26linkCode%3Dxm2%26camp%3D2025%26creative%3D386001%26creativeASIN%3D0553418351</URL>
+        </ItemLink>
+        <ItemLink>
+          <Description>Add To Wedding Registry</Description>
+          <URL>http://www.amazon.com/gp/registry/wedding/add-item.html%3Fasin.0%3D0553418351%26SubscriptionId%3DAKIAJGIEBIGGVDKYXRKQ%26tag%3Dbonzalabllc-20%26linkCode%3Dxm2%26camp%3D2025%26creative%3D386001%26creativeASIN%3D0553418351</URL>
+        </ItemLink>
+        <ItemLink>
+          <Description>Add To Wishlist</Description>
+          <URL>http://www.amazon.com/gp/registry/wishlist/add-item.html%3Fasin.0%3D0553418351%26SubscriptionId%3DAKIAJGIEBIGGVDKYXRKQ%26tag%3Dbonzalabllc-20%26linkCode%3Dxm2%26camp%3D2025%26creative%3D386001%26creativeASIN%3D0553418351</URL>
+        </ItemLink>
+        <ItemLink>
+          <Description>Tell A Friend</Description>
+          <URL>http://www.amazon.com/gp/pdp/taf/0553418351%3FSubscriptionId%3DAKIAJGIEBIGGVDKYXRKQ%26tag%3Dbonzalabllc-20%26linkCode%3Dxm2%26camp%3D2025%26creative%3D386001%26creativeASIN%3D0553418351</URL>
+        </ItemLink>
+        <ItemLink>
+          <Description>All Customer Reviews</Description>
+          <URL>http://www.amazon.com/review/product/0553418351%3FSubscriptionId%3DAKIAJGIEBIGGVDKYXRKQ%26tag%3Dbonzalabllc-20%26linkCode%3Dxm2%26camp%3D2025%26creative%3D386001%26creativeASIN%3D0553418351</URL>
+        </ItemLink>
+        <ItemLink>
+          <Description>All Offers</Description>
+          <URL>http://www.amazon.com/gp/offer-listing/0553418351%3FSubscriptionId%3DAKIAJGIEBIGGVDKYXRKQ%26tag%3Dbonzalabllc-20%26linkCode%3Dxm2%26camp%3D2025%26creative%3D386001%26creativeASIN%3D0553418351</URL>
+        </ItemLink>
+      </ItemLinks>
+      <ItemAttributes>
+        <Author>Gillian Flynn</Author>
+        <Binding>Paperback</Binding>
+        <EAN>9780553418354</EAN>
+        <EANList>
+          <EANListElement>9780553418354</EANListElement>
+        </EANList>
+        <Edition>Rep Mti</Edition>
+        <ISBN>0553418351</ISBN>
+        <ItemDimensions>
+          <Height Units="hundredths-inches">141</Height>
+          <Length Units="hundredths-inches">778</Length>
+          <Weight Units="hundredths-pounds">72</Weight>
+          <Width Units="hundredths-inches">413</Width>
+        </ItemDimensions>
+        <Label>Broadway Books</Label>
+        <Languages>
+          <Language>
+            <Name>English</Name>
+            <Type>Unknown</Type>
+          </Language>
+          <Language>
+            <Name>English</Name>
+            <Type>Original Language</Type>
+          </Language>
+          <Language>
+            <Name>English</Name>
+            <Type>Published</Type>
+          </Language>
+        </Languages>
+        <ListPrice>
+          <Amount>999</Amount>
+          <CurrencyCode>USD</CurrencyCode>
+          <FormattedPrice>$9.99</FormattedPrice>
+        </ListPrice>
+        <Manufacturer>Broadway Books</Manufacturer>
+        <NumberOfItems>1</NumberOfItems>
+        <NumberOfPages>576</NumberOfPages>
+        <PackageDimensions>
+          <Height Units="hundredths-inches">150</Height>
+          <Length Units="hundredths-inches">740</Length>
+          <Weight Units="hundredths-pounds">65</Weight>
+          <Width Units="hundredths-inches">420</Width>
+        </PackageDimensions>
+        <ProductGroup>Book</ProductGroup>
+        <ProductTypeName>ABIS_BOOK</ProductTypeName>
+        <PublicationDate>2014-08-26</PublicationDate>
+        <Publisher>Broadway Books</Publisher>
+        <ReleaseDate>2014-08-26</ReleaseDate>
+        <Studio>Broadway Books</Studio>
+        <Title>Gone Girl (Mass Market Movie Tie-In Edition): A Novel</Title>
+      </ItemAttributes>
+    </Item>
+  </Items>
+</ItemLookupResponse>

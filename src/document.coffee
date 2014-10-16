@@ -1,4 +1,5 @@
-Parser = require './parser'
+XmlParser = require '../grammar/xml'
+SelectorParser = require '../grammar/selector'
 {EventEmitter} = require 'events'
 _ = require 'underscore'
 
@@ -6,7 +7,7 @@ class Document
   constructor: (elt) ->
     @documentElement =
       if typeof(elt) == 'string'
-        elt = @createElement Parser.parse(elt)
+        elt = @createElement XmlParser.parse(elt)
         elt.setOwnerDocument @
         elt
       else if elt instanceof Element
@@ -156,10 +157,10 @@ class Element extends EventEmitter
         if typeof(child) == 'string'
           results.push child
         else
-          results.push child.toString()
+          results.push child.outerHTML()
       results.join('')
     else # we are *setting* the value.
-      elt = Parser.parse '<div>' + str + '</div>'
+      elt = XmlParser.parse '<div>' + str + '</div>'
       @empty()
       # we should have ownerDocument to figure things out...
       for child in elt.children
@@ -193,20 +194,31 @@ class Element extends EventEmitter
       keyvals = @getCSS()
       keyvals[key] = val
       @setCSS keyvals
-  toString: (buffer = []) ->
+  outerHTML: (buffer = []) ->
+    attrStr = @attrsToString()
+    buffer.push "<", @tag
+    if attrStr != ''
+      buffer.push ' ', attrStr
     if @_children.length == 0
-      buffer.push "<#{@tag} #{@attrsToString()} />"
+      buffer.push ' />'
     else
-      buffer.push "<#{@tag} #{@attrsToString()}>"
+      buffer.push '>'
       for child in @_children
         if typeof(child) == 'string'
           buffer.push child
         else
-          buffer.push child.toString()
+          buffer.push child.outerHTML()
       buffer.push "</#{@tag}>"
     buffer.join('')
   eltHTML: () ->
     "<#{@tag} #{@attrsToString()} />"
+  text: (buffer = []) ->
+    for child, i in @_children 
+      if child instanceof Element
+        child.text buffer
+      else
+        buffer.push child
+    buffer.join ''
   hasBinding: () ->
     @bindings != null
   attrsToString: () ->
@@ -238,25 +250,25 @@ class Element extends EventEmitter
       else
         return
 
-
 Document.Element = Element
 
 class Selector
   @parse: (stmt) ->
     new Selector stmt
   constructor: (stmt) ->
-    {@select} = Parser.parse stmt #"#{stmt} { @text: '' }"
+    {@select} = SelectorParser .parse stmt #"#{stmt} { @text: '' }"
     @matchExp = @compile @select
   negate: () ->
     origMatchExp = @matchExp
     @matchExp = (element) ->
       not origMatchExp(element)
     @select.not = if @select.hasOwnProperty('not') then not @select.not else true
-  run: (elt, includSelf = false) ->
+  run: (elt, includeSelf = false) ->
     result = []
-    @match elt, result, includSelf
+    @match elt, result, includeSelf
     result
   match: (element, result, includeSelf = false) ->
+    #console.log 'selector.match', element
     if element instanceof Document
       element = element.documentElement
     if includeSelf
@@ -272,6 +284,7 @@ class Selector
     else
       false
   compile: (selectExp) ->
+    #console.log 'Selector.compile', selectExp
     if selectExp instanceof Array # this is a group (it's an OR).
       @compileArray selectExp
     else

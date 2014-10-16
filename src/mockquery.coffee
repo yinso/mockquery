@@ -3,7 +3,7 @@ _ = require 'underscore'
 Document = require './document'
 Element = Document.Element
 Selector = Document.Selector
-Parser = require './parser'
+XmlParser = require '../grammar/xml'
 http = require 'http'
 https = require 'https'
 url = require 'url'
@@ -22,11 +22,21 @@ class MockQuery
       if @length > 0
         @[0].html()
       else
-        null
+        ''
     else
       for elt, i in @
         elt.html htmlString
       @
+  outerHTML: () ->
+    if @length > 0
+      @[0].outerHTML()
+    else
+      ''
+  text: () ->
+    if @length > 0
+      @[0].text()
+    else
+      ''
   attr: (key, val) ->
     if arguments.length == 1
       if @length > 0
@@ -187,6 +197,14 @@ class MockQuery
       else
         # determine where the elt is in relation to the parent.
         @[0]._parent.children().indexOf(@[0])
+  each: (cb) ->
+    for elt, i in @
+      cb.call elt, i, elt
+  map: (cb) ->
+    result = 
+      for elt, i in @
+        cb.call elt, i, elt
+    result
 
 
 statusCodeToError = (statusCode) ->
@@ -281,11 +299,11 @@ load = (document) ->
     else if selector instanceof Document
       new MockQuery [selector], document
     else if typeof(selector) == 'string' and selector.match(/<[^>]+>/)
-      elt = document.createElement Parser.parse('<div>'+ selector + '</div>')
+      elt = document.createElement XmlParser.parse('<div>'+ selector + '</div>')
       new MockQuery elt.children(), document
     else if typeof(selector) == 'string'
       sel = new Selector selector
-      new MockQuery sel.run(document, false), document
+      new MockQuery sel.run(document, true), document
     else
       throw new Error("unknown_selector_type: #{selector}")
   query.fn = query.prototype

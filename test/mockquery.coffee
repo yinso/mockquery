@@ -1,4 +1,4 @@
-Parser = require '../src/parser'
+XmlParser = require '../grammar/xml'
 Document = require '../src/document'
 Selector = Document.Selector
 mockQuery = require '../src/mockquery'
@@ -19,7 +19,7 @@ describe 'document test', () ->
       else
         try
           html = data
-          parsed = Parser.parse data
+          parsed = XmlParser.parse data
           done null
         catch e
           done e
@@ -52,4 +52,53 @@ describe 'document test', () ->
       done null
     catch e
       done e
+
+describe 'xml test', () ->
+
+  it 'should parse xml & select', (done) ->
+    mockQuery.readFile path.join(__dirname, '../example/testok.xml'), (err, $) ->
+      if err
+        done err
+      else 
+        done null
+  
+  it 'should parse xml & select', (done) ->
+    mockQuery.readFile path.join(__dirname, '../example/testerror.xml'), (err, $) ->
+      if err
+        done err
+      else if $('Items Request Errors').length > 0
+        done null
+      else
+        done {error: 'not_selecting_appropriate_error'}
+  
+describe 'outerHTML test', () ->
+  it 'should have outer element', (done) ->
+    txt = '<foo><bar>1</bar><baz>2</baz></foo>'
+    $ = mockQuery.load txt
+    if $('foo').outerHTML() == txt
+      done null
+    else
+      console.error 'not equal', txt, $('foo').outerHTML()
+      done {not_equal: txt}
+
+  it 'should have outer element', (done) ->
+    txt = '<foo><bar>1</bar><baz>2</baz></foo>'
+    $ = mockQuery.load txt
+    if $('foo').text() == '12'
+      done null
+    else
+      console.error 'not equal', txt, $('foo').text()
+      done {not_equal: txt}
+  
+  it 'should handle map correctly', (done) ->
+    txt = '<p><c>1</c><c>2</c><c>3</c></p>'
+    $ = mockQuery.load txt 
+    res = $('c').map (i, elt) -> parseInt(@text())
+    if res.length != 3
+      done {error: 'no_map'}
+    else if res.join('') != '123'
+      done {error: 'wrong_data'}
+    else
+      done null
+  
 

@@ -12,9 +12,10 @@ COFFEE_OBJECTS=$(patsubst $(VPATH)/%.coffee, $(BUILDDIR)/%.js, $(COFFEE_SOURCES)
 BEAN_FILES=$(wildcard $(BEANDIR)/*.bean)
 JSON_FILES=$(patsubst $(BEANDIR)/%.bean, $(JSONDIR)/%.json, $(BEAN_FILES))
 
-GRAMMAR_DIR=lib
+GRAMMAR_DIR=grammar
 
 GRAMMAR_FILES=$(wildcard $(GRAMMAR_DIR)/*.pegjs)
+GRAMMAR_JS_FILES=$(patsubst $(GRAMMAR_DIR)/%.pegjs, $(GRAMMAR_DIR)/%.js, $(GRAMMAR_FILES))
 
 all: build
 
@@ -22,16 +23,19 @@ all: build
 build: node_modules objects 
 
 .PHONY: objects
-objects: $(COFFEE_OBJECTS) $(JSON_FILES) lib/parser.js
-
+objects: $(COFFEE_OBJECTS) $(JSON_FILES) $(GRAMMAR_JS_FILES) 
+	
 $(JSONDIR)/%.json: $(BEANDIR)/%.bean
 	./node_modules/.bin/bean --source $<
 
-src/parser.js: src/parser.pegjs
-	./node_modules/.bin/pegjs src/parser.pegjs src/parser.js
+$(GRAMMAR_DIR)/%.js: $(GRAMMAR_DIR)/%.pegjs
+	./node_modules/.bin/pegjs $< $@
 
-lib/parser.js: src/parser.js
-	cp src/parser.js lib/parser.js
+#src/parser.js: src/parser.pegjs
+#	./node_modules/.bin/pegjs src/parser.pegjs src/parser.js
+
+#lib/parser.js: src/parser.js
+#	cp src/parser.js lib/parser.js
 
 #	#./node_modules/.bin/mocha --ignore-leaks --compilers coffee:coffee-script --reporter spec  -g exec # proxy runtime parse exec compile # for running test cases that matches the name
 .PHONY: test

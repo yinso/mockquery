@@ -1,0 +1,36 @@
+<?xml version="1.0" ?>
+<ItemLookupResponse 
+  xmlns="http://webservices.amazon.com/AWSECommerceService/2011-08-01">
+  <OperationRequest>
+    <RequestId>692938ac-3910-428a-b208-4453faf86eb2</RequestId>
+    <Arguments>
+      <Argument Name="Operation" Value="ItemLookup"></Argument>
+      <Argument Name="Service" Value="AWSECommerceService"></Argument>
+      <Argument Name="AssociateTag" Value="bonzalabllc-20"></Argument>
+      <Argument Name="Version" Value="2011-08-01"></Argument>
+      <Argument Name="Signature" Value="ltIp73XwnNrr5I/VHjWuqvgralfvNHoUQvl1zAS/anU="></Argument>
+      <Argument Name="ItemId" Value="0553418361"></Argument>
+      <Argument Name="AWSAccessKeyId" Value="AKIAJGIEBIGGVDKYXRKQ"></Argument>
+      <Argument Name="Timestamp" Value="2014-10-14T22:48:18Z"></Argument>
+      <Argument Name="ResponseGroup" Value="ItemAttributes"></Argument>
+    </Arguments>
+    <RequestProcessingTime>0.0702570000000000</RequestProcessingTime>
+  </OperationRequest>
+  <Items>
+    <Request>
+      <IsValid>True</IsValid>
+      <ItemLookupRequest>
+        <IdType>ASIN</IdType>
+        <ItemId>0553418361</ItemId>
+        <ResponseGroup>ItemAttributes</ResponseGroup>
+        <VariationPage>All</VariationPage>
+      </ItemLookupRequest>
+      <Errors>
+        <Error>
+          <Code>AWS.InvalidParameterValue</Code>
+          <Message>0553418361 is not a valid value for ItemId. Please change this value and retry your request.</Message>
+        </Error>
+      </Errors>
+    </Request>
+  </Items>
+</ItemLookupResponse>

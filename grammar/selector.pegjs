@@ -119,6 +119,29 @@ function keyvalsToObject (keyvals) {
 var depthCount = 0; 
 var maxDepthCount = 200;
 
+function normalizeChainedSelector(elt, rest) {
+  var top = elt;
+  for (var i = 0; i < rest.length; ++i) {
+    var item = rest[i];
+    var rel = 'ancestor';
+    var elt = null;
+    if (item.child) {
+      rel = 'parent';
+      elt = item.child;
+    } else if (item.immediatePrecede) {
+      rel = 'immediatePrecede';
+      elt = item.immediatePrecede;
+    } else if (item.precede) {
+      rel = 'precede';
+      elt = item.precede;
+    } else {
+      elt = item.descend;
+    }
+    top = normalizeSelectorRelation(elt, rel, top);
+  }
+  return top;
+}
+
 }
 
 /**********************************************************************
@@ -138,8 +161,7 @@ START
 Statement
 **********************************************************************/
 Statement
-  = exp:XHTMLExpression _ { return exp; }
-  / exp:SelectorExpression _ { return {select: exp}; }
+  = exp:SelectorExpression _ { return {select: exp}; }
 
 /**********************************************************************
 CSS Selector
@@ -150,20 +172,16 @@ http://www.w3.org/TR/css3-selectors/
 
 SelectorExpression
   = GroupSelectorExp
-  / CompoundSelectorExp
+  / ChainedSelector
 
-CompoundSelectorExp
-  = DescendentSelectorExp
-  / ChildSelectorExp
-  / ImmediatePrecedeSelectorExp
-  / PrecedeSelectorExp
-  / SingleSelectorExp
-  / AttributeSelectorExp
-
+/**********************************************************************
+  these are single selector and its modifiers... 
+**********************************************************************/
 SingleSelectorExp
   = elt:ElementSelectorExp mods:SelectorModifierExp* {
     return normalizeSelector(elt, mods); 
   }
+  / SelectorModifierExp
 
 ElementSelectorExp
   = elt:Identifier { return {elt: elt}; }
@@ -199,31 +217,51 @@ PseudoElementSelectorExp
     return { pseudo: name };
   }
 
-DescendentSelectorExp
-  = ancestor:SingleSelectorExp _ descendent:SingleSelectorExp { 
-    return normalizeSelectorRelation(descendent, 'ancestor', ancestor);
-  }
+/**********************************************************************
+compound selectors and modifiers
+**********************************************************************/
 
-ChildSelectorExp
-  = parent:SingleSelectorExp _ '>' _ child:SingleSelectorExp {
-    return normalizeSelectorRelation(child, 'parent', parent);
-  }
+ChainedSelector 
+= first:SingleSelectorExp _ items:chainedSelectorItem* {
+  return normalizeChainedSelector(first, items);
+}
 
-ImmediatePrecedeSelectorExp
-  = precede:SingleSelectorExp _ '+' _ recede:SingleSelectorExp {
-    return normalizeSelectorRelation(recede, 'immediatePrecede', precede);
-  }
-  
-PrecedeSelectorExp
-  = precede:SingleSelectorExp _ '~' _ recede:SingleSelectorExp {
-    return normalizeSelectorRelation(recede, 'precede', precede);
-  }
+chainedSelectorItem
+= childSelector
+/ descedentSelector
+/ immediatePrecedeSelector
+/ precedeSelector
+
+childSelector
+= '>' _ s:SingleSelectorExp _ {
+  return {child: s};
+}
+
+descedentSelector
+= s:SingleSelectorExp _ {
+  return {descend: s};
+}
+
+immediatePrecedeSelector
+= '+' _ s:SingleSelectorExp _ {
+  return {immediatePrecede: s};
+}
+
+precedeSelector
+= '~' _ s:SingleSelectorExp _ {
+  return {precede: s};
+}
+
+/**********************************************************************
+group selectors
+**********************************************************************/
+
 
 GroupSelectorExp
-  = head:CompoundSelectorExp _ rest:_tailGroupSelectorExp { return [ head ].concat(rest); }
+  = head:ChainedSelector _ rest:_tailGroupSelectorExp { return [ head ].concat(rest); }
 
 _tailGroupSelectorExp
-  = ',' _ exp:CompoundSelectorExp { return exp; }
+  = ',' _ exp:ChainedSelector { return exp; }
 
 /**********************************************************************
 Atomic Expression
@@ -264,77 +302,9 @@ Literal
   / 'false' { return false; }
   / 'null' { return null; }
 
-/**********************************************************************
-XHTML
-**********************************************************************/
-XHTMLExpression
-  = elt:SingleElementExp __ { return {element: elt.tag, attributes: elt.attributes, children: elt.children}; }
-  / start:OpenElementExp children:ChildXHTMLExpression* close:CloseElementExp {
-    if (start.tag == close.tag) {
-      return { element: start.tag, attributes: start.attributes, children: children };
-    } else {
-      throw new Error("invalid_xhtml_open_close_tag_unequal: " + start.tag);
-    }
-  } 
-
-OpenElementExp
-  = tag:StartElementExp __ attributes:AttributeExp* __ '>' {
-    return { tag: tag, attributes: keyvalsToObject(attributes) };
-  }
-
-CloseElementExp
-  = '</' __ name:Identifier __ '>' { 
-    return {tag: name}; 
-  }
-
-SingleElementExp
-  = tag:StartElementExp __ attributes:AttributeExp* __ '/' __ '>' {
-    return { tag: tag, attributes: keyvalsToObject(attributes), children: [] };
-  }
-
-StartElementExp
-  = '<' name:Identifier { 
-    return name; 
-  }
-
-AttributeExp
-  = name:Identifier __ '=' __ value:String __ {
-    return [name, value]; 
-  }
-
-ChildXHTMLExpression
-  = XHTMLExpression
-  / XHTMLContentExpression
- 
-XHTMLContentExpression
-  = chars:XHTMLContentChar+ { 
-    return chars.join(''); 
-  }
-
-XHTMLContentChar
-  = XHTMLComment { return ''; }
-  / char:(!StartElementExp !CloseElementExp .) { 
-    return char[2]; 
-  }
-
-__ 
-  = (XHTMLComment / whitespace)*
-
-XHTMLComment
-  = '<!--' chars:XHTMLCommentChar* XHTMLCommentClose { 
-    return { comment: chars.join('') }; 
-  }
-
-XHTMLCommentClose
-  = '-->'
-
-XHTMLCommentChar
-  = char:(!XHTMLCommentClose .) { 
-    return char[1]; 
-  }
 
 /**********************************************************************
-Lexical Elements
+  Lexical Elements
 **********************************************************************/
 
 String
@@ -349,8 +319,7 @@ doubleQuoteChar
   = "'"
   / char
 
-char
-  // In the original JSON grammar: "any-Unicode-character-except-"-or-\-or-control-character"
+char // In the original JSON grammar: "any-Unicode-character-except-"-or-\-or-control-character"
   = [^"'\\\0-\x1F\x7f]
   / '\\"'  { return '"';  }
   / "\\'"  { return "'"; }
@@ -400,7 +369,6 @@ digit19
 hexDigit
   = [0-9a-fA-F]
 
-/* ===== Whitespace ===== */
 
 _ "whitespace"
   = whitespace*
@@ -408,8 +376,8 @@ _ "whitespace"
 // Whitespace is undefined in the original JSON grammar, so I assume a simple
 // conventional definition consistent with ECMA-262, 5th ed.
 whitespace
-  = comment
-  / [ \t\n\r]
+  // = comment
+  = [ \t\n\r]
 
 
 lineTermChar
@@ -425,18 +393,3 @@ lineTerm "end of line"
 sourceChar
   = .
 
-// should also deal with comment.
-comment
-  = multiLineComment
-  / singleLineComment
-
-singleLineCommentStart
-  = '//' // c style
-
-singleLineComment
-  = singleLineCommentStart chars:(!lineTermChar sourceChar)* lineTerm? { 
-    return {comment: chars.join('')}; 
-  }
-
-multiLineComment
-  = '/*' chars:(!'*/' sourceChar)* '*/' { return {comment: chars.join('')}; }
