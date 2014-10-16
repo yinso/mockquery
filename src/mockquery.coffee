@@ -2,7 +2,7 @@ _ = require 'underscore'
 {EventEmitter} = require 'events'
 Document = require './document'
 Element = Document.Element
-Selector = Document.Selector
+Selector = require './selector'
 XmlParser = require '../grammar/xml'
 http = require 'http'
 https = require 'https'
@@ -290,9 +290,9 @@ postJSON = (uri, data, cb) ->
     cb e, 500
   ###
 
-load = (document) ->
+load = (document, options) ->
   if typeof(document) == 'string'
-    document = new Document document
+    document = Document.parse document, options
   query = (selector, context = document) ->
     if selector instanceof Element
       new MockQuery [selector], document
@@ -318,12 +318,50 @@ readFile = (filePath, cb) ->
     if err
       cb err
     else
-      cb null, load(data)
+      ext = path.extname(filePath)
+      options = 
+        if ext == '.html' or ext == '.htm'
+          {xmlMode: false}
+        else
+          {xmlMode: true}
+      cb null, load(data, options)
 
 readFileSync = (filePath) ->
-  load fs.readFileSync filePath, 'utf8'
+  ext = path.extname(filePath)
+  options = 
+    if ext == '.html' or ext == '.htm'
+      {xmlMode: false}
+    else
+      {xmlMode: true}
+  load fs.readFileSync(filePath, 'utf8'), options
+  
+get = (uri, cb) ->
+  parsed = url.parse uri
+  proto = if parsed.protocol == 'https:' then https else http
+  buffer = new Buffer('')
+  req = proto.get parsed, (res) ->
+    if res.statusCode >= 400 
+      cb {error: 'http', statusCode: res.statusCode, status: res.status}
+      res.end()
+      return
+      
+    res.on 'data', (data) ->
+      buffer = Buffer.concat [buffer, data]
+    res.on 'end', () ->
+      try 
+        contentType = res.getHeader('content-type')
+        if contentType.match /xml/i 
+          $ = load buffer.ToString(), {xmlMode: true}
+        else if contentType.match /html/i
+          $ = load buffer.ToString(), {xmlMode: false}
+        else
+          cb {error: 'invalid_content_type', contentType: contentType}
+      catch e
+        cb e
 
 module.exports =
   load: load
   readFile: readFile
   readFileSync: readFileSync
+  get: get 
+

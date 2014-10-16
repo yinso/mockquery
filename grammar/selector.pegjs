@@ -204,13 +204,16 @@ IDSelectorExp
 
 AttributeSelectorExp
   = '[' _ attr:Identifier _ ']' _ { return { attr: attr }; }
-  / '[' _ attr:Identifier _ op:('=' / '~=' / '^=' / '$=' / '*=' / '|=') _ val:Literal _ ']' _
+  / '[' _ attr:Identifier _ op:('=' / '~=' / '^=' / '$=' / '*=' / '|=' / '!=') _ val:Literal _ ']' _
   { 
     return { attr: attr, op: op, arg: val};
   }
 
 PseudoElementSelectorExp
-  = ':' name:Identifier '(' arg:Literal ')' { 
+  = ':' _ 'not' _ '(' arg:SelectorModifierExp ')' {
+    return { pseudo: 'not', args: [ arg ]}
+  }
+  / ':' name:Identifier '(' arg:Literal ')' { 
     return { pseudo: name, args: [ arg ] };
   }
   / ':' name:Identifier { 
@@ -258,10 +261,10 @@ group selectors
 
 
 GroupSelectorExp
-  = head:ChainedSelector _ rest:_tailGroupSelectorExp { return [ head ].concat(rest); }
+  = head:ChainedSelector _ rest:_tailGroupSelectorExp* _ { return [ head ].concat(rest); }
 
 _tailGroupSelectorExp
-  = ',' _ exp:ChainedSelector { return exp; }
+  = ',' _ exp:ChainedSelector _ { return exp; }
 
 /**********************************************************************
 Atomic Expression

@@ -1,16 +1,45 @@
 XmlParser = require '../grammar/xml'
-SelectorParser = require '../grammar/selector'
+htmlParser = require 'htmlparser2'
 {EventEmitter} = require 'events'
 _ = require 'underscore'
+#pretty = require('pretty-data').pd
+
+parse1 = (data, options = {xmlMode: true}) ->
+  stack = []
+  current = null
+  level = 0
+  handler = 
+    onopentag: (name, attr) ->
+      obj = {element: name, attributes: attr, children: []}
+      #console.log 'level: ', level, '<', name
+      if current != null 
+        current.children.push obj
+        stack.push current
+      current = obj
+      level++
+    ontext: (txt) ->
+      if level > 0
+        current.children.push txt
+    onclosetag: (name) ->
+      if stack.length > 0
+        current = stack.pop()
+      level--
+      #console.log 'level: ', level, '>', name
+  parser = new htmlParser.Parser handler, options
+  parser.write data 
+  parser.end() 
+  #console.log pretty.json(current)
+  current 
+  
+parse2 = (data) ->
+  XmlParser.parse data
 
 class Document
+  @parse: (text, options) ->
+    new Document parse1(text, options)
   constructor: (elt) ->
     @documentElement =
-      if typeof(elt) == 'string'
-        elt = @createElement XmlParser.parse(elt)
-        elt.setOwnerDocument @
-        elt
-      else if elt instanceof Element
+      if elt instanceof Element
         elt.setOwnerDocument @
       else
         elt = @createElement elt
@@ -160,7 +189,7 @@ class Element extends EventEmitter
           results.push child.outerHTML()
       results.join('')
     else # we are *setting* the value.
-      elt = XmlParser.parse '<div>' + str + '</div>'
+      elt = parse1 '<div>' + str + '</div>'
       @empty()
       # we should have ownerDocument to figure things out...
       for child in elt.children
@@ -252,137 +281,7 @@ class Element extends EventEmitter
 
 Document.Element = Element
 
-class Selector
-  @parse: (stmt) ->
-    new Selector stmt
-  constructor: (stmt) ->
-    {@select} = SelectorParser .parse stmt #"#{stmt} { @text: '' }"
-    @matchExp = @compile @select
-  negate: () ->
-    origMatchExp = @matchExp
-    @matchExp = (element) ->
-      not origMatchExp(element)
-    @select.not = if @select.hasOwnProperty('not') then not @select.not else true
-  run: (elt, includeSelf = false) ->
-    result = []
-    @match elt, result, includeSelf
-    result
-  match: (element, result, includeSelf = false) ->
-    #console.log 'selector.match', element
-    if element instanceof Document
-      element = element.documentElement
-    if includeSelf
-      @matchOne element, result
-    for child in element.children()
-      @match child, result, true
-  matchOne: (element, result) ->
-    res = @matchExp element
-    #console.log '@matchOne', @select, res, element.eltHTML(), @matchExp.toString()
-    if res
-      result.push element
-      true
-    else
-      false
-  compile: (selectExp) ->
-    #console.log 'Selector.compile', selectExp
-    if selectExp instanceof Array # this is a group (it's an OR).
-      @compileArray selectExp
-    else
-      @compileOne selectExp
-  compileArray: (selectExp) ->
-    matchExps =
-      for inner in selectExp
-        @compile inner
-    (element) =>
-      #console.log 'matchArray', element.tag
-      for match in matchExps
-        if match(element)
-          return true
-      return false
-  compileOne: (exp) ->
-    eltExp = @compileTag(exp.elt)
-    idExp = @compileID(exp.id)
-    classExp = @compileClass(exp.class)
-    attrExp = @compileAttr(exp.attr)
-    (element) -> # why didn't this run????
-      #console.log 'matchOne', element.tag
-      eltExp(element) and idExp(element) and classExp(element) and attrExp(element)
-  compileTag: (tag) ->
-    if tag == '*'
-      (element) ->
-        #console.log 'isAnyElement', element.tag, tag
-        true
-    else
-      (element) ->
-        #console.log 'isElement', element.tag, tag, element.tag == tag
-        element.tag == tag
-  compileID: (id) ->
-    if id instanceof Array
-      (element) ->
-        _.contains id, element.attributes['id']
-    else if typeof(id) == 'string'
-      (element) ->
-        element.attributes['id'] == id
-    else
-      (element) ->
-        true
-  compileClass: (classes) ->
-    if classes instanceof Array
-      classExps =
-        for cls in classes
-          @compileOneClass cls
-      (element) ->
-        for classExp in classExps
-          if classExp(element)
-            return true
-        return false
-    else if typeof(classes) == 'string'
-      @compileOneClass classes
-    else
-      (element) ->
-        true
-  compileOneClass: (cls) ->
-    (element) ->
-      eltClasses = element.getClasses()
-      _.contains eltClasses, cls
-  compileAttr: (attrs) ->
-    if attrs instanceof Array
-      attrExps =
-        for attr in attrs
-          @compileOneAttr attr
-      (element) ->
-        for attrExp in attrExps
-          if not attrExp(element)
-            return false
-        return true
-    else if attrs instanceof Object
-      @compileOneAttr attrs
-    else
-      (element) -> true
-  compileOneAttr: ({attr, op, val}) ->
-    # op can be one of the following: '=' / '~=' / '^=' / '$=' / '*=' / '|='
-    valExp =
-      if val
-        if op == '=' # this is an equal comparison.
-          (attr) -> attr == val
-        else if op == '~='
-          regex = new RegExp val
-          (attr) -> attr.match regex
-        else if op == '^='
-          regex = new RegExp "^#{val}"
-          (attr) -> attr.match regex
-        else if op == "$="
-          regex = new RegExp "#{val}$"
-          (attr) -> attr.match regex
-        else
-          throw new Error("unsupported_attribute_selector: #{attr}#{op}#{val}")
-      else
-        (attr) -> true
-    (element) ->
-      if not element.attributes.hasOwnProperty(attr)
-        return false
-      valExp element.attributes[attr]
 
-Document.Selector = Selector
+#Document.Selector = Selector
 
 module.exports = Document

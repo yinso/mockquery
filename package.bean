@@ -2,7 +2,7 @@
 author: 'YC <yinso.chen@gmail.com>'
 name: 'mockquery'
 description: 'A Simple NodeJS jQuery Substitute'
-version: '0.2.4'
+version: '0.2.5'
 repository:
   type: 'git'
   url: 'git@github.com:yinso/mockquery.git'
@@ -15,7 +15,9 @@ main: './lib/mockquery.js'
 dependencies:
   'coffee-script': '=1.7.1'
   underscore: '=1.6.0'
+  htmlparser2: '=3.7.3'
+  'pretty-data': '=0.40.0'
 devDependencies:
   testlet: '>= 0.2.0'
   'coffee-bean': '>=0.1.0'
-  pegjs: '=0.7.0'
+  pegjs: '=0.7.0' 

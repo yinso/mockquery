@@ -1,6 +1,6 @@
 XmlParser = require '../grammar/xml'
 Document = require '../src/document'
-Selector = Document.Selector
+Selector = require '../src/selector'
 mockQuery = require '../src/mockquery'
 fs = require 'fs'
 path = require 'path'
@@ -69,6 +69,7 @@ describe 'xml test', () ->
       else if $('Items Request Errors').length > 0
         done null
       else
+        #console.log 'ITEMS REQUEST ERRORS', $('Items Request Errors')
         done {error: 'not_selecting_appropriate_error'}
   
 describe 'outerHTML test', () ->
