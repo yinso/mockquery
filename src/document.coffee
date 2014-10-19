@@ -3,6 +3,8 @@ htmlParser = require 'htmlparser2'
 {EventEmitter} = require 'events'
 _ = require 'underscore'
 #pretty = require('pretty-data').pd
+Entities = require('html-entities').AllHtmlEntities;
+entities = new Entities()
 
 parse1 = (data, options = {xmlMode: true}) ->
   stack = []
@@ -19,7 +21,7 @@ parse1 = (data, options = {xmlMode: true}) ->
       level++
     ontext: (txt) ->
       if level > 0
-        current.children.push txt
+        current.children.push entities.decode(txt)
     onclosetag: (name) ->
       if stack.length > 0
         current = stack.pop()

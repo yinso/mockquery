@@ -49,7 +49,7 @@ class Selector
           return true
       return false
   compileOne: (exp) ->
-    console.log 'compileOne', exp
+    #console.log 'compileOne', exp
     eltExp = @compileTag(exp.elt)
     idExp = @compileID(exp.id)
     classExp = @compileClass(exp.class)
@@ -112,7 +112,7 @@ class Selector
       (element) -> true
   compileOneAttr: ({attr, op, arg}) ->
     # op can be one of the following: '=' / '~=' / '^=' / '$=' / '*=' / '|='
-    console.log 'compileOneAttr', attr, op, arg
+    #console.log 'compileOneAttr', attr, op, arg
     valExp =
       if arg
         if op == '=' # this is an equal comparison.
@@ -127,9 +127,9 @@ class Selector
           regex = new RegExp "#{arg}$"
           (attr) -> attr.match regex
         else if op == '!=' # extension... 
-          console.log 'not equal'
+          #console.log 'not equal'
           (attr) -> 
-            console.log attr, 'not equal', arg, '?'
+            #console.log attr, 'not equal', arg, '?'
             attr != arg
         else
           throw new Error("unsupported_attribute_selector: #{attr}#{op}#{arg}")
@@ -154,7 +154,7 @@ class Selector
     else 
       (element) -> true
   compileOnePseudo: ({pseudo, args}) ->
-    console.log 'compileOnePseudo', pseudo, args
+    #console.log 'compileOnePseudo', pseudo, args
     if pseudo== 'not' # this one is special... 
       arg = args[0]
       innerExp = 
@@ -168,7 +168,7 @@ class Selector
           @compilePseudo arg
       (elt) -> 
         res = innerExp(elt)
-        console.log 'pseudoInner', pseudo, args, res, not res
+        #console.log 'pseudoInner', pseudo, args, res, not res
         not res
     else
       throw {pseudo_not_supported: pseudo, args: args}
