@@ -364,4 +364,7 @@ module.exports =
   readFile: readFile
   readFileSync: readFileSync
   get: get 
+  Document: Document
+  Selector: Selector
+  Element: Element
 

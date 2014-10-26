@@ -6,12 +6,15 @@ _ = require 'underscore'
 Entities = require('html-entities').AllHtmlEntities;
 entities = new Entities()
 
+
 parse1 = (data, options = {xmlMode: true}) ->
   stack = []
   current = null
   level = 0
   handler = 
     onopentag: (name, attr) ->
+      for key, val of attr 
+        attr[key] = entities.decode(val)
       obj = {element: name, attributes: attr, children: []}
       #console.log 'level: ', level, '<', name
       if current != null 
@@ -38,7 +41,12 @@ parse2 = (data) ->
 
 class Document
   @parse: (text, options) ->
-    new Document parse1(text, options)
+    if typeof(text) == 'string'
+      new Document parse1(text, options)
+    else if text instanceof Object and text.element 
+      new Document text
+    else
+      throw {error: 'unknown_document_structure', document: text}
   constructor: (elt) ->
     @documentElement =
       if elt instanceof Element
@@ -84,6 +92,8 @@ class Document
     new Document @documentElement.clone()
   html: (args...) ->
     @documentElement.html args...
+  outerHTML: (args...) ->
+    @documentElement.outerHTML(args...)
 
 #
 # I've already have the selector parsed... actually the selector ought to be decently simple.
@@ -171,7 +181,10 @@ class Element extends EventEmitter
       @_data[key] = val
   getClasses: () ->
     val = @attr('class')
-    val.split(' ')
+    if val 
+      val.split /\s+/
+    else 
+      []
   setClasses: (classes) ->
     @attr('class', classes.join(' '))
   addClass: (key) ->
@@ -181,12 +194,20 @@ class Element extends EventEmitter
   removeClass: (key) ->
     classes = @getClasses()
     @setClasses _.without classes, key
+  isWhitespace: (str) ->
+    if typeof(str) == 'string'
+      str.trim() == ''
+    else
+      true
   html: (str) ->
     if arguments.length == 0
       results = []
       for child in @_children
         if typeof(child) == 'string'
-          results.push child
+          if @isWhitespace child
+            results.push child
+          else
+            results.push @escape child
         else
           results.push child.outerHTML()
       results.join('')
@@ -236,7 +257,7 @@ class Element extends EventEmitter
       buffer.push '>'
       for child in @_children
         if typeof(child) == 'string'
-          buffer.push child
+          buffer.push @escape child
         else
           buffer.push child.outerHTML()
       buffer.push "</#{@tag}>"
@@ -255,7 +276,10 @@ class Element extends EventEmitter
   attrsToString: () ->
     buffers =
       for key, val of @attributes
-        "#{key} = #{@escape(val)}"
+        if not (val == null or val == undefined)
+          "#{key} = \"#{@escape(val)}\""
+        else
+          ''
     buffers.join(' ')
   empty: () ->
     for child, i in @_children
@@ -264,7 +288,8 @@ class Element extends EventEmitter
         child._parent = null
     @_children = []
   escape: (str) ->
-    JSON.stringify(str.toString())
+    entities.encode(str.toString())
+    #JSON.stringify(str.toString())
   bind: (args...) ->
   unbind: (args...) ->
   on: (args...) ->

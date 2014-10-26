@@ -1,5 +1,6 @@
 Document = require './document'
 Parser = require '../grammar/selector'
+_ = require 'underscore'
 
 class Selector
   @parse: (stmt) ->
@@ -43,7 +44,6 @@ class Selector
       for inner in selectExp
         @compile inner
     (element) =>
-      #console.log 'matchArray', element.tag
       for match in matchExps
         if match(element)
           return true
@@ -56,8 +56,13 @@ class Selector
     attrExp = @compileAttr(exp.attr)
     pseudoExp = @compilePseudo(exp.pseudo)
     (element) -> # why didn't this run????
-      #console.log 'matchOne', element.tag
-      eltExp(element) and idExp(element) and classExp(element) and attrExp(element) and pseudoExp(element)
+      isElt = eltExp element
+      isID = idExp element
+      isCls = classExp element
+      isAttr = attrExp element
+      isPseudo = pseudoExp element
+      #console.log 'matchOne===================', element.tag, isElt, isID, isCls, isAttr, isPseudo
+      isElt and isID and isCls and isAttr and isPseudo
   compileTag: (tag) ->
     if tag == '*'
       (element) ->
@@ -78,6 +83,7 @@ class Selector
       (element) ->
         true
   compileClass: (classes) ->
+    #console.log 'compileClass', classes, typeof(classes)
     if classes instanceof Array
       classExps =
         for cls in classes
@@ -89,13 +95,18 @@ class Selector
         return false
     else if typeof(classes) == 'string'
       @compileOneClass classes
+    else if classes instanceof Object
+      @compileOneClass classes.class
     else
       (element) ->
         true
   compileOneClass: (cls) ->
+    #console.log 'compileOneClass', cls
     (element) ->
       eltClasses = element.getClasses()
-      _.contains eltClasses, cls
+      res = _.contains eltClasses, cls
+      #console.log '.class', cls, eltClasses, res
+      res
   compileAttr: (attrs) ->
     if attrs instanceof Array
       attrExps =

@@ -4,6 +4,7 @@ Selector = require '../src/selector'
 mockQuery = require '../src/mockquery'
 fs = require 'fs'
 path = require 'path'
+assert = require 'assert'
 
 document = null
 $ = null
@@ -101,5 +102,36 @@ describe 'outerHTML test', () ->
       done {error: 'wrong_data'}
     else
       done null
+
+describe 'encode/decode test', () ->
+  txt = '<p id = "&quot;Hello World&quot;">This is &lt;a test&gt;</p>'
+  $ = null
+  it 'should decode text', (done) ->
+    try 
+      $ = mockQuery.load txt 
+      assert.equal $('p').text(), 'This is <a test>'
+      done null
+    catch e
+      done e
   
+  it 'should decode text', (done) ->
+    try 
+      assert.equal $('p').html(), 'This is &lt;a test&gt;'
+      done null
+    catch e
+      done e
+  
+  it 'should decode attr', (done) ->
+    try
+      assert.equal $('p').attr('id'), '"Hello World"'
+      done null
+    catch e
+      done e
+
+  it 'should decode everything', (done) ->
+    try
+      assert.equal $('p').outerHTML(), txt
+      done null
+    catch e
+      done e
 
