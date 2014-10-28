@@ -2,39 +2,81 @@ XmlParser = require '../grammar/xml'
 htmlParser = require 'htmlparser2'
 {EventEmitter} = require 'events'
 _ = require 'underscore'
+loglet = require 'loglet'
 #pretty = require('pretty-data').pd
 Entities = require('html-entities').AllHtmlEntities;
 entities = new Entities()
 
+class ParseStack
+  constructor: () ->
+    @root = {element: '__', attributes: {}, children: []} # this is a pseudo element.
+    @stack = [ @root ]
+  level: () ->
+    @stack.length 
+  current: () ->
+    if @stack.length == 0
+      null 
+    else
+      @stack[@stack.length - 1]
+  rootElement: () ->
+    children = _.filter @root.children, (elt) -> elt instanceof Object
+    if children.length == 1
+      children[0]
+    else
+      @root
+  decode: (val) ->
+    entities.decode val
+  normalizeAttrs: (attrs) ->
+    result = {}
+    for key, val of attrs 
+      result[key] = @decode val
+    result
+  push: (name, attrs) ->
+    @_pushElement {
+      element: name 
+      attributes: @normalizeAttrs attrs
+      children: [] 
+    }
+  _pushElement: (elt) ->
+    if @root == null 
+      @root = elt
+      @stack.push elt 
+    else # we have something on the list... 
+      @current().children.push elt
+      @stack.push elt
+  pushText: (txt) ->
+    if @level() > 0 
+      @current().children.push @decode txt 
+  pop: (name) ->
+    if @level() > 0 
+      @stack.pop() 
+  tabify: (count) ->
+    ('  ' for i in [0...count]).join('')
+  printClose: () ->
+    items = 
+      for elt, i in @stack 
+        @tabify(i) + '</' + elt.element
+    for line in items.reverse() 
+      loglet.debug 'parseStack.close', line
+  printOpen: () ->
+    for elt, i in @stack 
+      loglet.debug 'parseStack.open', @tabify(i) + '<' + elt.element
 
 parse1 = (data, options = {xmlMode: true}) ->
-  stack = []
-  current = null
-  level = 0
+  parseStack = new ParseStack() 
   handler = 
     onopentag: (name, attr) ->
-      for key, val of attr 
-        attr[key] = entities.decode(val)
-      obj = {element: name, attributes: attr, children: []}
-      #console.log 'level: ', level, '<', name
-      if current != null 
-        current.children.push obj
-        stack.push current
-      current = obj
-      level++
+      parseStack.push name, attr
+      parseStack.printOpen()
     ontext: (txt) ->
-      if level > 0
-        current.children.push entities.decode(txt)
+      parseStack.pushText txt 
     onclosetag: (name) ->
-      if stack.length > 0
-        current = stack.pop()
-      level--
-      #console.log 'level: ', level, '>', name
+      parseStack.printClose()
+      parseStack.pop(name)
   parser = new htmlParser.Parser handler, options
   parser.write data 
   parser.end() 
-  #console.log pretty.json(current)
-  current 
+  parseStack.rootElement() 
   
 parse2 = (data) ->
   XmlParser.parse data

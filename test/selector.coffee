@@ -29,8 +29,8 @@ describe 'selector parser test', () ->
 
   it 'can parse group', (done) ->
     try 
-      obj = Parser.parse 'h1, h2, h3'
-      assert.deepEqual obj, {select: [{elt: 'h1'}, {elt: 'h2'}, {elt: 'h3'}]} # is this right?
+      obj = Parser.parse 'h1, h2, h3,h4,h5,h6'
+      assert.deepEqual obj, {select: [{elt: 'h1'}, {elt: 'h2'}, {elt: 'h3'}, {elt: 'h4'}, {elt: 'h5'}, {elt:'h6'}]} # is this right?
       done null
     catch e
       done e

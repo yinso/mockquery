@@ -134,4 +134,14 @@ describe 'encode/decode test', () ->
       done null
     catch e
       done e
+      
+  it 'should parse h1 successfully', (done) ->
+    try 
+      data = '<h2 id = \"marketing-1-knowledge\">Knowledge</h2>\n<p>This is the first marketing piece.</p>\n'
+      $ = mockQuery.load data
+      assert.equal $('h1,h2,h3,h4,h5,h6').text(), 'Knowledge'
+      done null
+    catch e
+      done e
+    
 
