@@ -14,4 +14,12 @@ describe 'entities test', () ->
   
   testEncode 'abc\n', 'abc\n'
   testEncode 'abc <', 'abc &lt;'
+
+  it 'can convert numeric values', (done) ->
+    try 
+      assert.equal entities.decode('&#39;'), entities.decode('&apos;')
+      assert.equal entities.decode('&#x27;'), entities.decode('&apos;')
+      done null
+    catch e
+      done e
   

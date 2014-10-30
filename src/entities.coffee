@@ -32,12 +32,19 @@ class Entities
   decode: (txt) ->
     self = @ 
     txt.replace /&([^;]+);/g, (match, p1) ->
+      loglet.debug 'entities.decode', txt, match, p1
       if self.decodeMap.hasOwnProperty(p1)
         self.decodeMap[p1]
-      else if p1.match /^\d+$/ # pure number... 
-        String.fromCharCode parseInt(p1)
-      else if p1.match /^x[0-9a-fA-F]+$/
-        String.fromCharCode parseInt "0#{p1}"
+      else if p1.match /^#\d+$/ # pure number... 
+        code = parseInt(p1.substring(1))
+        char = String.fromCharCode code
+        loglet.debug 'entities.decode.charCode', code, char
+        char
+      else if p1.match /^#x[0-9a-fA-F]+$/
+        code = parseInt('0' + p1.substring(1))
+        char = String.fromCharCode code
+        loglet.debug 'entities.decode.hexCode', code, char
+        char
       else
         throw new Error("unknown_html_entity #{match}")
   encode: (txt) ->
