@@ -1,4 +1,6 @@
 loglet = require 'loglet'
+entityList = require '../entities.json'
+console.log 'entity.list', entityList
 
 class Entities
   constructor: () ->
@@ -7,10 +9,14 @@ class Entities
     @encodeRegex = //
   register: (entity, txt) ->
     normed = @normalize entity
+    if typeof(txt) == 'number'
+      txt = @fromCharCode txt
     @decodeMap[ normed ] = txt
     @encodeMap[ txt] = "&#{normed};"
     @_buildEncodeRegex() 
     loglet.debug 'Entities.register', @encodeRegex, @encodeMap, @decodeMap
+  fromCharCode: (num) ->
+    String.fromCharCode num
   unicode: (num) ->
     # total of 4 characters... 
     hex = num.toString 16
@@ -25,8 +31,14 @@ class Entities
         '\\' + key
     @encodeRegex = new RegExp keys.join('|'), 'g'
   registerEntities: (entities) ->
-    for [ entity, txt ] in entities
-      @register entity, txt
+    if entities instanceof Array 
+      for [ entity, txt ] in entities
+        @register entity, txt
+    else if entities instanceof Object
+      for entity, txt of entities
+        @register entity, txt
+    else
+      throw {error: 'unknown_entity_list', value: entities}
   normalize: (entity) ->
     entity.replace /^&([^;]+);$/, '$1'
   decode: (txt) ->
@@ -37,12 +49,12 @@ class Entities
         self.decodeMap[p1]
       else if p1.match /^#\d+$/ # pure number... 
         code = parseInt(p1.substring(1))
-        char = String.fromCharCode code
+        char = self.fromCharCode code
         loglet.debug 'entities.decode.charCode', code, char
         char
       else if p1.match /^#x[0-9a-fA-F]+$/
         code = parseInt('0' + p1.substring(1))
-        char = String.fromCharCode code
+        char = self.fromCharCode code
         loglet.debug 'entities.decode.hexCode', code, char
         char
       else
@@ -60,22 +72,9 @@ class Entities
 
 entities = new Entities()
 
-defaultEntities = 
-  [
-    [ '&amp;', '&' ]
-    [ '&lt;', '<' ]
-    [ '&gt;', '>' ]
-    [ '&quot;', '"' ]
-    [ '&apos;', "'" ]
-    [ '&nbsp;', String.fromCharCode(160) ]
-    [ '&iexcl;', '¡' ]
-    [ '&cent;', '¢' ]
-    [ '&pound;', '£' ]
-    [ '&curren;', '¤' ]
-    [ '&copy;', '©']
-    [ '&reg;', '®']
-  ]
-
-entities.registerEntities defaultEntities
+entities.registerEntities entityList.xml
+entities.registerEntities entityList.html32
+entities.registerEntities entityList.html40
 
 module.exports = entities
+  
