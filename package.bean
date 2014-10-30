@@ -2,7 +2,7 @@
 author: 'YC <yinso.chen@gmail.com>'
 name: 'mockquery'
 description: 'A Simple NodeJS jQuery Substitute'
-version: '0.2.6'
+version: '0.2.7'
 repository:
   type: 'git'
   url: 'git@github.com:yinso/mockquery.git'
@@ -17,7 +17,6 @@ dependencies:
   underscore: '=1.6.0'
   htmlparser2: '=3.7.3'
   'pretty-data': '=0.40.0'
-  'html-entities': '=1.1.1'
   loglet: '>=0.1.1'
 devDependencies:
   testlet: '>= 0.2.0'

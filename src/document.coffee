@@ -4,8 +4,9 @@ htmlParser = require 'htmlparser2'
 _ = require 'underscore'
 loglet = require 'loglet'
 #pretty = require('pretty-data').pd
-Entities = require('html-entities').AllHtmlEntities;
-entities = new Entities()
+#Entities = require('html-entities').AllHtmlEntities;
+#entities = new Entities()
+entities = require './entities'
 
 class ParseStack
   constructor: () ->

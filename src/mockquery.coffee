@@ -293,6 +293,8 @@ postJSON = (uri, data, cb) ->
 load = (document, options) ->
   if typeof(document) == 'string'
     document = Document.parse document, options
+  else if document instanceof Buffer 
+    document = Document.parse document.toString('utf8'), options
   query = (selector, context = document) ->
     if selector instanceof Element
       new MockQuery [selector], document
