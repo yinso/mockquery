@@ -4,6 +4,7 @@ Document = require './document'
 Element = Document.Element
 Selector = require './selector'
 XmlParser = require '../grammar/xml'
+Parser = require './parser'
 http = require 'http'
 https = require 'https'
 url = require 'url'
@@ -74,10 +75,10 @@ class MockQuery
       elt.removeClass cls
     @
   children: () ->
-    if @length == 0
-      new MockQuery [], @context
-    else
-      new MockQuery @[0].children(), @context
+    total = []
+    for item in @
+      total = total.concat(item.children(0))
+    new MockQuery total, @context
   appendTo: (parent) ->
     for elt, i in @
       parent.append elt
@@ -170,11 +171,18 @@ class MockQuery
         elt.prepend element.clone()
     @
   append: (element) ->
-    for elt, i in @
-      if i == 0
-        elt.append element
-      else
-        elt.append element.clone()
+    if element instanceof MockQuery 
+      for elt in element 
+        @append elt
+    else if element instanceof Array
+      for elt in element
+        @append elt
+    else
+      for elt, i in @
+        if i == 0
+          elt.append element
+        else
+          elt.append element.clone()
     @
   after: (element) ->
     for elt, i in @
@@ -290,19 +298,41 @@ postJSON = (uri, data, cb) ->
     cb e, 500
   ###
 
+###
+jQuery API... http://api.jquery.com/jQuery/
+
+not yet implemented all of this... note the options are additional on top for parsing both html (case insensitive) & xml
+    
+jQuery( selector [, context ] )
+  jQuery( selector [, context ] )
+  jQuery( element )
+  jQuery( elementArray )
+  jQuery( object )
+  jQuery( selection )
+  jQuery()
+jQuery( html [, ownerDocument ] )
+  jQuery( html [, ownerDocument ] )
+  jQuery( html, attributes )
+jQuery( callback )
+  jQuery( callback )    
+
+###
+
 load = (document, options) ->
   if typeof(document) == 'string'
-    document = Document.parse document, options
+    document = Parser.parseDocument document, options
   else if document instanceof Buffer 
-    document = Document.parse document.toString('utf8'), options
+    document = Parser.parseDocument document.toString('utf8'), options
   query = (selector, context = document) ->
     if selector instanceof Element
       new MockQuery [selector], document
     else if selector instanceof Document
       new MockQuery [selector], document
     else if typeof(selector) == 'string' and selector.match(/<[^>]+>/)
-      elt = document.createElement XmlParser.parse('<div>'+ selector + '</div>')
-      new MockQuery elt.children(), document
+      elt = Parser.parseElement selector, document
+      if not (context instanceof Document)
+        _.extend elt.attributes, context
+      new MockQuery [ elt ], document
     else if typeof(selector) == 'string'
       sel = new Selector selector
       new MockQuery sel.run(document, true), document

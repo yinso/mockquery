@@ -1,6 +1,7 @@
 loglet = require 'loglet'
 entityList = require '../entities.json'
-console.log 'entity.list', entityList
+
+loglet.debug 'entity.list', entityList
 
 class Entities
   constructor: () ->

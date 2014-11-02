@@ -8,92 +8,17 @@ loglet = require 'loglet'
 #entities = new Entities()
 entities = require './entities'
 
-class ParseStack
-  constructor: () ->
-    @root = {element: '__', attributes: {}, children: []} # this is a pseudo element.
-    @stack = [ @root ]
-  level: () ->
-    @stack.length 
-  current: () ->
-    if @stack.length == 0
-      null 
-    else
-      @stack[@stack.length - 1]
-  rootElement: () ->
-    children = _.filter @root.children, (elt) -> elt instanceof Object
-    if children.length == 1
-      children[0]
-    else
-      @root
-  decode: (val) ->
-    entities.decode val
-  normalizeAttrs: (attrs) ->
-    result = {}
-    for key, val of attrs 
-      result[key] = @decode val
-    result
-  push: (name, attrs) ->
-    @_pushElement {
-      element: name 
-      attributes: @normalizeAttrs attrs
-      children: [] 
-    }
-  _pushElement: (elt) ->
-    if @root == null 
-      @root = elt
-      @stack.push elt 
-    else # we have something on the list... 
-      @current().children.push elt
-      @stack.push elt
-  pushText: (txt) ->
-    if @level() > 0 
-      @current().children.push @decode txt 
-  pop: (name) ->
-    if @level() > 0 
-      @stack.pop() 
-  tabify: (count) ->
-    ('  ' for i in [0...count]).join('')
-  printClose: () ->
-    items = 
-      for elt, i in @stack 
-        @tabify(i) + '</' + elt.element
-    for line in items.reverse() 
-      loglet.debug 'parseStack.close', line
-  printOpen: () ->
-    for elt, i in @stack 
-      loglet.debug 'parseStack.open', @tabify(i) + '<' + elt.element
-
-parse1 = (data, options = {xmlMode: true}) ->
-  parseStack = new ParseStack() 
-  handler = 
-    onopentag: (name, attr) ->
-      parseStack.push name, attr
-      parseStack.printOpen()
-    ontext: (txt) ->
-      parseStack.pushText txt 
-    onclosetag: (name) ->
-      parseStack.printClose()
-      parseStack.pop(name)
-  parser = new htmlParser.Parser handler, options
-  parser.write data 
-  parser.end() 
-  parseStack.rootElement() 
-  
 parse2 = (data) ->
   XmlParser.parse data
 
 class Document
-  @parse: (text, options) ->
-    if typeof(text) == 'string'
-      new Document parse1(text, options)
-    else if text instanceof Object and text.element 
-      new Document text
-    else
-      throw {error: 'unknown_document_structure', document: text}
+  @createElement: ({element, attributes, children}) ->
+    new Element element, attributes 
   constructor: (elt) ->
     @documentElement =
       if elt instanceof Element
         elt.setOwnerDocument @
+        elt
       else
         elt = @createElement elt
         elt.setOwnerDocument @
@@ -110,6 +35,8 @@ class Document
         undefined
     else
       @_data[key] = val
+  children: () ->
+    [ @documentElement ]
   createElement: ({element, attributes, children}, parent = null) ->
     #console.log 'createElement', element, attributes
     elt = @initialize element, attributes, children, parent
@@ -119,7 +46,7 @@ class Document
       elt.append html
     elt
   initialize: (tag, attrs, children, parent) ->
-    element = new Element tag, attrs, null, parent
+    element = new Element tag, attrs, parent
     for child in children
       if typeof(child) == 'string'
         element.append child
@@ -136,18 +63,25 @@ class Document
   html: (args...) ->
     @documentElement.html args...
   outerHTML: (args...) ->
-    @documentElement.outerHTML(args...)
+    if @documentElement.isFragment()
+      @documentElement.html(args...)
+    else
+      @documentElement.outerHTML(args...)
 
 #
 # I've already have the selector parsed... actually the selector ought to be decently simple.
 # it might as well just be a function
 #
 class Element extends EventEmitter
-  constructor: (tag, attributes, @_parent, @ownerDocument) ->
+  constructor: (tag, attributes, children = []) ->
     @tag = tag
     @attributes = attributes
     @_data = {}
     @_children = []
+    for child in children 
+      @append child
+  isFragment: () ->
+    @tag == '__'
   destroy: () ->
     delete @ownerDocument
     delete @_parent
@@ -155,8 +89,10 @@ class Element extends EventEmitter
       if child instanceof Element
         child.destroy()
     delete @_children
-  clone: () -> # when we clone do we worry about the current parent?
-    elt = @ownerDocument.createElement {element: @tag, attributes: _.extend({}, @attributes), children: []}
+  clone: () -> 
+    elt = new Element @tag, _.extend({}, @attributes)
+    if @ownerDocument instanceof Document 
+      elt.setOwnerDocument @ownerDocument
     for child in @_children
       if child instanceof Element
         elt.append child.clone()

@@ -5,6 +5,7 @@ mockQuery = require '../src/mockquery'
 fs = require 'fs'
 path = require 'path'
 assert = require 'assert'
+loglet = require 'loglet'
 
 document = null
 $ = null
@@ -143,5 +144,38 @@ describe 'encode/decode test', () ->
       done null
     catch e
       done e
+  
+  it 'should deal with fragment successfully', (done) ->
+    try 
+      data = '<h2 id = \"marketing-1-knowledge\">Knowledge</h2>\n<p>This is the first marketing piece.</p>\n'
+      $ = mockQuery.load data
+      assert.equal data, $($.document).outerHTML()
+      done null
+    catch e
+      done e
+  
+  it 'should create element', (done) ->
+    try
+      $ = mockQuery.load('<div></div>') 
+      elt = $('<div />', {class: 'test me out'})[0]
+      assert.equal 'test me out', $(elt).attr('class')
+      done null
+    catch e
+      done e
+  
+  it 'should allow us to swap out root nodes', (done) ->
+    try 
+      data = '<bar>1</bar><baz>1</baz><xyz>2</xyz>'
+      $ = mockQuery.load data
+      
+      elt = $('<div />')[0]
+      $(elt).append $(':root').children()
+      #loglet.warn 'item.children', $(':root').children(), $.document.documentElement
+      assert.equal $(elt).outerHTML(), '<div>' + data + '</div>'
+      done null
+    catch e 
+      done e
     
+    
+
 

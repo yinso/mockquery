@@ -5,7 +5,7 @@ assert = require 'assert'
 describe 'class test', () ->
   $ = mockquery.readFileSync path.join __dirname, '../example/class.html'
   testClassCountCase = (cls, count) ->
-    it "should select #{cls}only", (done) ->
+    it "should select #{cls} only", (done) ->
       try 
         assert.equal $(cls).length, count
         done null

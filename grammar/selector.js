@@ -256,7 +256,16 @@ module.exports = (function(){
           pos = pos0;
         }
         if (result0 === null) {
+          pos0 = pos;
           result0 = parse_SelectorModifierExp();
+          if (result0 !== null) {
+            result0 = (function(offset, mod) {
+              return normalizeSelector({elt: '*'}, [ mod ]);
+            })(pos0, result0);
+          }
+          if (result0 === null) {
+            pos = pos0;
+          }
         }
         return result0;
       }

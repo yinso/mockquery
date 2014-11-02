@@ -1,12 +1,14 @@
 Document = require './document'
 Parser = require '../grammar/selector'
 _ = require 'underscore'
+loglet = require 'loglet'
 
 class Selector
   @parse: (stmt) ->
     new Selector stmt
   constructor: (stmt) ->
     {@select} = Parser.parse stmt #"#{stmt} { @text: '' }"
+    loglet.debug 'Selector.ctor', @select
     @matchExp = @compile @select
   negate: () ->
     origMatchExp = @matchExp
@@ -18,7 +20,6 @@ class Selector
     @match elt, result, includeSelf
     result
   match: (element, result, includeSelf = false) ->
-    #console.log 'selector.match', element
     if element instanceof Document
       element = element.documentElement
     if includeSelf
@@ -151,6 +152,7 @@ class Selector
         return false
       valExp element.attributes[attr]
   compilePseudo: (pseudos) ->
+    loglet.debug 'compilePseudo', pseudos
     if pseudos instanceof Array
       pseudoExps = 
         for pseudo in pseudos
@@ -165,7 +167,7 @@ class Selector
     else 
       (element) -> true
   compileOnePseudo: ({pseudo, args}) ->
-    #console.log 'compileOnePseudo', pseudo, args
+    loglet.debug 'compileOnePseudo', pseudo, args
     if pseudo== 'not' # this one is special... 
       arg = args[0]
       innerExp = 
@@ -181,6 +183,11 @@ class Selector
         res = innerExp(elt)
         #console.log 'pseudoInner', pseudo, args, res, not res
         not res
+    else if pseudo == 'root'
+      loglet.debug 'compileRootElementPseudo'
+      (elt) ->
+        loglet.debug 'pseudoSelector:root', elt
+        elt == elt.ownerDocument?.documentElement
     else
       throw {pseudo_not_supported: pseudo, args: args}
 

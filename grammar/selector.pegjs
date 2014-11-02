@@ -181,7 +181,9 @@ SingleSelectorExp
   = elt:ElementSelectorExp mods:SelectorModifierExp* {
     return normalizeSelector(elt, mods); 
   }
-  / SelectorModifierExp
+  / mod:SelectorModifierExp {
+    return normalizeSelector({elt: '*'}, [ mod ]);
+  }
 
 ElementSelectorExp
   = elt:Identifier { return {elt: elt}; }
