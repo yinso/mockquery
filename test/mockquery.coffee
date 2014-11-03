@@ -189,5 +189,16 @@ describe 'encode/decode test', () ->
       loglet.error e
       done e
     
+  it 'can createElement', (done) ->
+    try 
+      elt = mockQuery.Document.createElement {
+        element: 'h1'
+        attributes: {class: 'test'}
+        children: [ "hello world"]
+      }
+      assert.equal elt.outerHTML(), '<h1 class = "test">hello world</h1>'
+      done null
+    catch e
+      done e
 
 

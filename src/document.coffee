@@ -15,7 +15,7 @@ parse2 = (data) ->
 class Document
   @createElement: ({element, attributes, children}) ->
     Element = Node.type Node.ELEMENT_NODE
-    new Element element, attributes 
+    new Element element, attributes, children
   constructor: (elt) ->
     elementType = Node.type Node.ELEMENT_NODE
     @documentElement =
