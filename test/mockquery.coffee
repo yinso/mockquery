@@ -175,7 +175,19 @@ describe 'encode/decode test', () ->
       done null
     catch e 
       done e
-    
+  
+  it 'can set html without issues', (done) ->
+    try 
+      data = '<foo><bar>1</bar><baz>2</baz></foo>'
+      snippet = '<abc>1</abc><def>2</def>'
+      $ = mockQuery.load data 
+      $('foo').html(snippet)
+      #loglet.warn 'set html', $('foo')[0]
+      assert.equal $('foo').html(), snippet
+      done null
+    catch e
+      loglet.error e
+      done e
     
 
 

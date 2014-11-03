@@ -1,7 +1,7 @@
 _ = require 'underscore'
 {EventEmitter} = require 'events'
 Document = require './document'
-Element = Document.Element
+Element = require './element'
 Selector = require './selector'
 XmlParser = require '../grammar/xml'
 Parser = require './parser'
@@ -12,6 +12,7 @@ kvs = require './kvs'
 qs = require 'querystring'
 fs = require 'fs'
 path = require 'path'
+loglet = require 'loglet'
 
 class MockQuery
   constructor: (elements, @context) ->
@@ -399,4 +400,8 @@ module.exports =
   Document: Document
   Selector: Selector
   Element: Element
+  parseDocument: Parser.parseDocument
+  parseElement: Parser.parseElement
+
+  
 

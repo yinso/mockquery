@@ -2,17 +2,13 @@ htmlParser = require 'htmlparser2'
 {EventEmitter} = require 'events'
 _ = require 'underscore'
 loglet = require 'loglet'
-#pretty = require('pretty-data').pd
-#Entities = require('html-entities').AllHtmlEntities;
-#entities = new Entities()
 entities = require './entities'
-
-Document = require './document'
-Element = Document.Element 
+Node = require './node'
 
 class ParseStack
   constructor: () ->
-    @root = new Element '__', {}
+    @Element = Node.type Node.ELEMENT_NODE
+    @root = new @Element '__', {}
     @stack = [ @root ]
   level: () ->
     @stack.length 
@@ -35,7 +31,7 @@ class ParseStack
       result[key] = @decode val
     result
   push: (name, attrs) ->
-    @_pushElement new Element name, @normalizeAttrs(attrs)
+    @_pushElement new @Element name, @normalizeAttrs(attrs)
   _pushElement: (elt) ->
     if @root == null 
       @root = elt
@@ -79,6 +75,7 @@ parse1 = (data, options = {xmlMode: true}) ->
   
 parseDocument = (text, options) ->
     #loglet.warn 'Document.parse', text, options
+    Document = Node.type Node.DOCUMENT_NODE
     document = 
       if typeof(text) == 'string'
         elt = parse1(text, options)
@@ -95,7 +92,13 @@ parseElement = (text, document, options = {xmlMode: true}) ->
   element.setOwnerDocument document
   element
 
-module.exports = 
+parser = 
   parseDocument: parseDocument
   parseElement: parseElement
+  
+Node.registerParser parser 
+
+module.exports = parser
+
+
 
