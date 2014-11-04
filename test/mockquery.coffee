@@ -200,5 +200,31 @@ describe 'encode/decode test', () ->
       done null
     catch e
       done e
+  
+  it 'can deserialize from JSON', (done) ->
+    try
+      elt = mockQuery.fromJSON 
+        element: 'p'
+        attributes: {}
+        children: 
+          [
+            'This is a test '
+            { 
+              element: 'a'
+              attributes: 
+                href: 'http://google.com'
+              children: 
+                [
+                  'To Google'
+                ]
+            }
+            ' we can see it now'
+          ]
+      
+      assert.equal elt.outerHTML(), '<p>This is a test <a href = "http://google.com">To Google</a> we can see it now</p>'
+      done null 
+    catch e
+      done e
+    
 
 

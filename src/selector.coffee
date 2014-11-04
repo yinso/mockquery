@@ -28,7 +28,6 @@ class Selector
       @match child, result, true
   matchOne: (element, result) ->
     res = @matchExp element
-    #console.log '@matchOne', @select, res, element.eltHTML(), @matchExp.toString()
     if res
       result.push element
       true

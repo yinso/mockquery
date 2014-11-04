@@ -51,7 +51,7 @@ class Document
   initialize: (tag, attrs, children, parent) ->
     Element = Node.type Node.ELEMENT_NODE
     element = new Element tag, attrs, parent
-    for child in children
+    for child in children or []
       if typeof(child) == 'string'
         element.append child
       else

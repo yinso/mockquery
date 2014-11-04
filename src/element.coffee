@@ -121,14 +121,11 @@ class Element extends EventEmitter
     else
       true
   html: (str) ->
-    #loglet.warn 'Element.html', str, @
     if arguments.length == 0
       Node.serializer().innerHTML @
     else # we are *setting* the value.
       elt = Node.parser().parseElement '<div>' + str + '</div>', @ownerDocument
       @empty()
-      #loglet.warn 'Element.html', str, elt._children
-      # we should have ownerDocument to figure things out...
       for child in elt._children
         @append child 
   getCSS: () ->
@@ -157,27 +154,12 @@ class Element extends EventEmitter
       keyvals = @getCSS()
       keyvals[key] = val
       @setCSS keyvals
-  outerHTML: (buffer = []) ->
+  outerHTML: () ->
     Node.serializer().outerHTML @
-  eltHTML: () ->
-    "<#{@tag} #{@attrsToString()} />"
-  text: (buffer = []) ->
-    for child, i in @_children 
-      if child instanceof Element
-        child.text buffer
-      else
-        buffer.push child
-    buffer.join ''
+  text: () ->
+    Node.serializer().toText @
   hasBinding: () ->
     @bindings != null
-  attrsToString: () ->
-    buffers =
-      for key, val of @attributes
-        if not (val == null or val == undefined)
-          "#{key} = \"#{@escape(val)}\""
-        else
-          ''
-    buffers.join(' ')
   empty: () ->
     for child, i in @_children
       if child instanceof Element

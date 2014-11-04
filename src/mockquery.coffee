@@ -1,5 +1,6 @@
 _ = require 'underscore'
 {EventEmitter} = require 'events'
+Node = require './node'
 Document = require './document'
 Element = require './element'
 Selector = require './selector'
@@ -157,7 +158,6 @@ class MockQuery
       result = []
       for elt, i in @
         res = sel.matchOne elt, result
-        #console.log '@jQuery.not', selector, elt.eltHTML(), res
         if not res
           result.push elt
       #console.log 'jQuery.not', result
@@ -398,6 +398,11 @@ get = (uri, cb) ->
       catch e
         cb e
 
+fromJSON = (json) ->
+  elt = Node.serializer().fromJSON json
+  #loglet.warn 'Mockquery.fromJSON', elt
+  new Document elt
+
 module.exports =
   load: load
   loadHTML: loadHTML
@@ -409,6 +414,6 @@ module.exports =
   Element: Element
   parseDocument: Parser.parseDocument
   parseElement: Parser.parseElement
-
+  fromJSON: fromJSON
   
 

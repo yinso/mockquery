@@ -51,13 +51,45 @@ _toHTML = (node, buffer) ->
       else
         _toHTML child, buffer
     buffer.push "</#{node.tag}>"
+
+toText = (node) ->
+  buffer = []
+  _toText node, buffer
+  buffer.join ''
   
-serializer = 
+_toText = (node, buffer) ->
+  if typeof(node) == 'string'
+    buffer.push node
+  else
+    for child, i in node._children 
+      _toText child, buffer
+
+toJSON = (node) ->
+  if typeof(node) == 'string'
+    node
+  else
+    obj = 
+      element: node.tag 
+      attributes: node.attributes
+      children: [] 
+    for child in node._children
+      obj.children.push toJSON(child)
+    obj
+
+fromJSON = (obj, Element = Node.type Node.ELEMENT_NODE) ->
+  if typeof(obj) == 'string'
+    obj 
+  else
+    elt = new Element obj.element, obj.attributes or {}, []
+    for child in (obj.children or [])
+      elt.append fromJSON(child, Element)
+    elt
+  
+Node.registerSerializer module.exports =
   outerHTML: outerHTML
   innerHTML: innerHTML
-#  toJSON: 
+  toText: toText
+  toJSON: toJSON
+  fromJSON: fromJSON
 
-Node.registerSerializer serializer
-
-module.exports = serializer
 
