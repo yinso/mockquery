@@ -5,6 +5,7 @@ Element = require './element'
 Selector = require './selector'
 XmlParser = require '../grammar/xml'
 Parser = require './parser'
+Serializer = require './serializer'
 http = require 'http'
 https = require 'https'
 url = require 'url'
@@ -346,6 +347,11 @@ load = (document, options) ->
     query.document.destroy()
   query
 
+
+loadHTML = (document) ->
+  # we will use the xmlMode: false for this guy... 
+  load document, {xmlMode: false}
+
 readFile = (filePath, cb) ->
   fs.readFile filePath, 'utf8', (err, data) ->
     if err
@@ -394,6 +400,7 @@ get = (uri, cb) ->
 
 module.exports =
   load: load
+  loadHTML: loadHTML
   readFile: readFile
   readFileSync: readFileSync
   get: get 

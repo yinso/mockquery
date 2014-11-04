@@ -39,5 +39,14 @@ class NodeFactory
     if not @_parser
       throw {error: 'parser_unregistered'}
     @_parser
+  @registerSerializer: (serializer) ->
+    if @_serializer
+      throw {error: 'duplicate_serializer', serializer: serializer}
+    #loglet.warn 'registerSerializer', serializer
+    @_serializer = serializer
+  @serializer: () ->
+    if not @_serializer
+      throw {error: 'serializer_unregistered'}
+    @_serializer
   
 module.exports = NodeFactory

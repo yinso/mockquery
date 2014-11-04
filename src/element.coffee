@@ -121,18 +121,9 @@ class Element extends EventEmitter
     else
       true
   html: (str) ->
-    #loglet.warn 'Element.html', str
+    #loglet.warn 'Element.html', str, @
     if arguments.length == 0
-      results = []
-      for child in @_children
-        if typeof(child) == 'string'
-          if @isWhitespace child
-            results.push child
-          else
-            results.push @escape child
-        else
-          results.push child.outerHTML()
-      results.join('')
+      Node.serializer().innerHTML @
     else # we are *setting* the value.
       elt = Node.parser().parseElement '<div>' + str + '</div>', @ownerDocument
       @empty()
@@ -167,21 +158,7 @@ class Element extends EventEmitter
       keyvals[key] = val
       @setCSS keyvals
   outerHTML: (buffer = []) ->
-    attrStr = @attrsToString()
-    buffer.push "<", @tag
-    if attrStr != ''
-      buffer.push ' ', attrStr
-    if @_children.length == 0
-      buffer.push ' />'
-    else
-      buffer.push '>'
-      for child in @_children
-        if typeof(child) == 'string'
-          buffer.push @escape child
-        else
-          buffer.push child.outerHTML()
-      buffer.push "</#{@tag}>"
-    buffer.join('')
+    Node.serializer().outerHTML @
   eltHTML: () ->
     "<#{@tag} #{@attrsToString()} />"
   text: (buffer = []) ->
