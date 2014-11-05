@@ -71,6 +71,8 @@ class Document
       @documentElement.html(args...)
     else
       @documentElement.outerHTML(args...)
+  toJSON: () ->
+    @documentElement.toJSON()
 
 Node.register Node.DOCUMENT_NODE, Document
 

@@ -400,7 +400,6 @@ get = (uri, cb) ->
 
 fromJSON = (json) ->
   elt = Node.serializer().fromJSON json
-  #loglet.warn 'Mockquery.fromJSON', elt
   new Document elt
 
 module.exports =
