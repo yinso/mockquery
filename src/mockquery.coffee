@@ -325,6 +325,8 @@ load = (document, options) ->
     document = Parser.parseDocument document, options
   else if document instanceof Buffer 
     document = Parser.parseDocument document.toString('utf8'), options
+  else if document instanceof Document
+    document = document
   query = (selector, context = document) ->
     if selector instanceof Element
       new MockQuery [selector], document
@@ -400,7 +402,7 @@ get = (uri, cb) ->
 
 fromJSON = (json) ->
   elt = Node.serializer().fromJSON json
-  new Document elt
+  load new Document elt
 
 module.exports =
   load: load
