@@ -73,6 +73,8 @@ class Document
       @documentElement.outerHTML(args...)
   toJSON: () ->
     @documentElement.toJSON()
+  serialize: (options) ->
+    @documentElement.serialize options
 
 Node.register Node.DOCUMENT_NODE, Document
 

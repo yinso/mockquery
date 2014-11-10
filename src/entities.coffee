@@ -60,13 +60,33 @@ class Entities
         char
       else
         throw new Error("unknown_html_entity #{match}")
-  encode: (txt) ->
+  encodeNumeric: (str) ->
+    switch str
+      when '>' then '&gt;'
+      when '<' then '&lt;'
+      when '&' then '&amp;'
+      when '\'' then '&apos;'
+      when '"' then '&quot;'
+      else '&#' + str.charCodeAt(0) + ';'
+  encodeBasic: (str) ->
+    switch str
+      when '>' then '&gt;'
+      when '<' then '&lt;'
+      when '&' then '&amp;'
+      when '\'' then '&apos;'
+      when '"' then '&quot;'
+      else str
+  encode: (txt, options = {}) ->
     # what is a fast way to 
     # in order to encode... what is the fast way to do so? 
     self = @
     txt.replace @encodeRegex, (match) ->
       loglet.debug 'encode', match, self.encodeMap[match]
-      if self.encodeMap.hasOwnProperty(match)
+      if options.numericEntity 
+        self.encodeNumeric(match)
+      else if options.basicEntity
+        self.encodeBasic(match)
+      else if self.encodeMap.hasOwnProperty(match)
         self.encodeMap[match]
       else
         match # just return itself... though shouldn't be here anyways... 

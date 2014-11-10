@@ -160,6 +160,8 @@ class Element extends EventEmitter
     Node.serializer().toText @
   toJSON: () ->
     Node.serializer().toJSON @
+  serialize: (options) ->
+    Node.serializer().outerHTML @, options
   hasBinding: () ->
     @bindings != null
   empty: () ->

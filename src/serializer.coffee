@@ -6,38 +6,38 @@ loglet = require 'loglet'
 #Element = require './element'
 
 # what do we want to do??? we want to 
-outerHTML = (node) ->
+outerHTML = (node, options = {}) ->
   Element = Node.type Node.ELEMENT_NODE
   Document = Node.type Node.DOCUMENT_NODE
   buffer = []
-  _toHTML(node, buffer)
+  _toHTML(node, buffer, options)
   buffer.join('')
 
-innerHTML = (node) ->
+innerHTML = (node, options = {}) ->
   Element = Node.type Node.ELEMENT_NODE
   Document = Node.type Node.DOCUMENT_NODE
   buffer = [] 
   for child in node._children
-    _toHTML child, buffer
+    _toHTML child, buffer, options
   buffer.join('')
 
-_attrsToString = (attributes = {}) ->
+_attrsToString = (attributes = {}, options) ->
   buffer =
     for key, val of attributes
       if not (val == null or val == undefined)
-        "#{key} = \"#{entities.encode(val)}\""
+        "#{key} = \"#{entities.encode(val, options)}\""
       else
         ''
   buffer.join(' ')
   
-_toHTML = (node, buffer) ->
+_toHTML = (node, buffer, options) ->
   #loglet.warn '_toHTML', node, buffer
   # text
   if typeof(node) == 'string'
-    buffer.push entities.encode node
+    buffer.push entities.encode node, options
     return
   # element
-  attrStr = _attrsToString node.attributes
+  attrStr = _attrsToString node.attributes, options
   buffer.push '<', node.tag
   if attrStr != ''
     buffer.push ' ', attrStr
@@ -47,9 +47,9 @@ _toHTML = (node, buffer) ->
     buffer.push '>'
     for child in node._children
       if typeof(child) == 'string'
-        buffer.push entities.encode child
+        buffer.push entities.encode child, options
       else
-        _toHTML child, buffer
+        _toHTML child, buffer, options
     buffer.push "</#{node.tag}>"
 
 toText = (node) ->
@@ -84,6 +84,7 @@ fromJSON = (obj, Element = Node.type Node.ELEMENT_NODE) ->
     for child in (obj.children or [])
       elt.append fromJSON(child, Element)
     elt
+
   
 Node.registerSerializer module.exports =
   outerHTML: outerHTML
@@ -91,5 +92,4 @@ Node.registerSerializer module.exports =
   toText: toText
   toJSON: toJSON
   fromJSON: fromJSON
-
 

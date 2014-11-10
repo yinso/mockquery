@@ -225,6 +225,23 @@ describe 'encode/decode test', () ->
       done null 
     catch e
       done e
-    
+  
+  it 'can serialize into numeric entity', (done) ->
+    try
+      data = '<foo>abc &lt; &trade; &reg; &gt; etc...</foo>'
+      $ = mockQuery.load data 
+      assert.equal $.document.serialize({numericEntity: true}), '<foo>abc &lt; &#8482; &#174; &gt; etc...</foo>'
+      done null
+    catch e
+      done e
+  
+  it 'can serialize only basic entity', (done) ->
+    try
+      data = '<foo>abc &lt; &trade; &reg; &gt; etc...</foo>'
+      $ = mockQuery.load data 
+      assert.equal $.document.serialize({basicEntity: true}), '<foo>abc &lt; ™ ® &gt; etc...</foo>'
+      done null
+    catch e
+      done e
 
 
