@@ -15,6 +15,7 @@ qs = require 'querystring'
 fs = require 'fs'
 path = require 'path'
 loglet = require 'loglet'
+entities = require './entities'
 
 class MockQuery
   constructor: (elements, @context) ->
@@ -416,5 +417,6 @@ module.exports =
   parseDocument: Parser.parseDocument
   parseElement: Parser.parseElement
   fromJSON: fromJSON
+  entities: entities
   
 
