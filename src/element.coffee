@@ -63,7 +63,7 @@ class Element extends EventEmitter
       elt._parent = @
     if after
       index = @_children.indexOf(after)
-      @_children.splice(index, 0, elt)
+      @_children.splice(index + 1, 0, elt)
     else
       @_children.push elt
     #loglet.warn 'Element.append', elt, @
@@ -157,7 +157,11 @@ class Element extends EventEmitter
   outerHTML: () ->
     Node.serializer().outerHTML @
   text: () ->
-    Node.serializer().toText @
+    if arguments.length == 0
+      Node.serializer().toText @
+    else
+      @empty()
+      @append arguments[0].toString()
   toJSON: () ->
     Node.serializer().toJSON @
   serialize: (options) ->

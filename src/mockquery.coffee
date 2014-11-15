@@ -38,10 +38,15 @@ class MockQuery
     else
       ''
   text: () ->
-    if @length > 0
-      @[0].text()
-    else
-      ''
+    if arguments.length == 0
+      if @length > 0
+        @[0].text()
+      else
+        ''
+    else # we are overwriting everything within the stuff.
+      arg = arguments[0]
+      for elt in @ 
+        elt.text arg
   attr: (key, val) ->
     if arguments.length == 1
       if @length > 0
@@ -216,8 +221,14 @@ class MockQuery
       for elt, i in @
         cb.call elt, i, elt
     result
-
-
+  parent: () ->
+    results = []
+    for elt, i in @ 
+      parent = elt.parent()
+      if parent 
+        results.push parent
+    new MockQuery results, @context
+    
 statusCodeToError = (statusCode) ->
   if statusCode >= 500
     new Error("server_error: #{statusCode}")
@@ -405,6 +416,12 @@ fromJSON = (json) ->
   elt = Node.serializer().fromJSON json
   load new Document elt
 
+jsonElement = (json) ->
+  Node.serializer().fromJSON json
+
+loadJSON = (json) ->
+  load fromJSON json
+
 module.exports =
   load: load
   loadHTML: loadHTML
@@ -417,6 +434,8 @@ module.exports =
   parseDocument: Parser.parseDocument
   parseElement: Parser.parseElement
   fromJSON: fromJSON
+  jsonElement: jsonElement
   entities: entities
+  loadJSON: loadJSON
   
 
