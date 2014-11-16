@@ -419,9 +419,6 @@ fromJSON = (json) ->
 jsonElement = (json) ->
   Node.serializer().fromJSON json
 
-loadJSON = (json) ->
-  load fromJSON json
-
 module.exports =
   load: load
   loadHTML: loadHTML
@@ -436,6 +433,5 @@ module.exports =
   fromJSON: fromJSON
   jsonElement: jsonElement
   entities: entities
-  loadJSON: loadJSON
   
 
